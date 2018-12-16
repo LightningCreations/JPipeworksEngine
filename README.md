@@ -1,2 +1,2 @@
 # JPipeworksEngine
-WIP
+A lightweight Java 2D Game engine
