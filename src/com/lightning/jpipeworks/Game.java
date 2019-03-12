@@ -5,7 +5,5 @@ public abstract class Game {
         MAIN_GAME
     }
     
-    public void loadState(GameState state) {
-        
-    }
+    public void loadState(Engine engine, GameState state) {}
 }
