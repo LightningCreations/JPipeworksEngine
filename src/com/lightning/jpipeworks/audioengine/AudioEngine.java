@@ -1,5 +1,6 @@
 package com.lightning.jpipeworks.audioengine;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
@@ -13,7 +14,8 @@ public class AudioEngine implements Runnable {
     private static boolean initialized = false;
     private static BlockingStream stream;
     private static Thread updateThread;
-    private static AudioInputStream bgm = null;
+    private static byte[] bgm = null;
+    private static int bgmPos;
     
     static {
         init();
@@ -36,8 +38,14 @@ public class AudioEngine implements Runnable {
         }
     }
     
-    public synchronized static void setBGM(AudioInputStream stream) {
-        bgm = stream;
+    public synchronized static void setBGM(AudioInputStream stream) throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = stream.read(buffer)) != -1) {
+            result.write(buffer, 0, length);
+        }
+        bgm = result.toByteArray();
     }
     
     public void run() {
@@ -57,15 +65,13 @@ public class AudioEngine implements Runnable {
             }
             
             if(bgm != null) {
-                AudioFormat f = bgm.getFormat();
                 byte[] data = new byte[4000];
-                int read = 0;
-                try {
-                    read = bgm.read(data, 0, 4000);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                for(int i = 0; i < data.length; i++) {
+                    data[i] = bgm[bgmPos];
+                    bgmPos++;
+                    if(bgmPos >= bgm.length) bgmPos = 0;
                 }
-                for(int i = 0; i < read/2; i+=2) {
+                for(int i = 0; i < 2000; i+=2) {
                     next[i  ] += (data[i*2  ]&0x00FF)|((data[i*2+1]&0x00FF)<<8);
                     next[i+1] += (data[i*2+2]&0x00FF)|((data[i*2+3]&0x00FF)<<8);
                 }

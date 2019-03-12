@@ -1,5 +1,6 @@
 package com.lightning.jpipeworks.things;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.sound.sampled.AudioInputStream;
@@ -20,7 +21,12 @@ public class BGMPlayer extends Thing {
     @Override
     public void update() {
         if(startMusic) {
-            AudioEngine.setBGM(((AudioInputStream) (resources.get(0).resource)));
+            try {
+                AudioEngine.setBGM(((AudioInputStream) (resources.get(0).resource)));
+                startMusic = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
