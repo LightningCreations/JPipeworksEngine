@@ -9,4 +9,7 @@ public abstract class Thing {
 
     public abstract void update();
     public abstract void render();
+    public byte[] toByteArray() {
+        return null;
+    }
 }

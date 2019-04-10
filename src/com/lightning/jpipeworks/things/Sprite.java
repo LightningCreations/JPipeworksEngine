@@ -1,7 +1,11 @@
 package com.lightning.jpipeworks.things;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.resources.ImageListResource;
@@ -21,9 +25,7 @@ public class Sprite extends Thing {
     public boolean enable = false;
     
     public static class EmptyAI implements SpriteAI {
-        public void runAI(Sprite sprite) {
-            
-        }
+        public void runAI(Sprite sprite) {}
     }
     
     public Sprite(String pathname, SpriteAI ai, Engine engine) {
@@ -67,6 +69,8 @@ public class Sprite extends Thing {
     public void render() {
         if(enable) {
             collision = false;
+            if(frame < 0) frame = 0;
+            if(frame >= resources.size()-1) frame = resources.size()-1;
             BufferedImage thisImage = (BufferedImage) resources.get(frame+1).resource;
             int trueWidth = thisImage.getWidth();
             int trueHeight = thisImage.getHeight();
@@ -85,5 +89,23 @@ public class Sprite extends Thing {
                 }
             }
         }
+    }
+    
+    // This'll be optimized later
+    public byte[] toJPEG(int frame) {
+        if(frame < 0 || frame >= resources.size()-1) return null;
+        
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        BufferedImage thisImage = (BufferedImage) resources.get(frame+1).resource;
+        try { ImageIO.write(thisImage, "JPEG", result); } catch (IOException e) { return null; }
+        return result.toByteArray();
+    }
+    
+    public byte[][] toJPEGs() {
+        byte[][] result = new byte[resources.size()-1][];
+        for(int i = 0; i < result.length; i++) {
+            result[i] = toJPEG(i);
+        }
+        return result;
     }
 }
