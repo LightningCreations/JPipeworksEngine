@@ -2,6 +2,7 @@ package com.lightning.jpipeworks.audioengine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -16,6 +17,10 @@ public class AudioEngine implements Runnable {
     private static Thread updateThread;
     private static byte[] bgm = null;
     private static int bgmPos;
+    private static float bgmVolume = 1;
+    private static ArrayList<byte[]> sfxList;
+    private static byte[] playingSFX;
+    private static int[] playingSFXPos;
     
     static {
         init();
@@ -35,10 +40,19 @@ public class AudioEngine implements Runnable {
             updateThread = new Thread(new AudioEngine());
             updateThread.start();
             initialized = true;
+            sfxList = new ArrayList<>();
+            playingSFX = new byte[32]; // 32 SFX at a time
+            playingSFXPos = new int[32];
+            for(int i = 0; i < playingSFX.length; i++) {
+                playingSFX[i] = -1;
+                playingSFXPos[i] = 0;
+            }
         }
     }
     
     public synchronized static void setBGM(AudioInputStream stream) throws IOException {
+        bgm = null; // Clear current BGM
+        System.out.println(stream.getFormat().toString());
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         int length;
@@ -46,6 +60,31 @@ public class AudioEngine implements Runnable {
             result.write(buffer, 0, length);
         }
         bgm = result.toByteArray();
+        bgmPos = 0;
+    }
+    
+    public synchronized static int addSFX(AudioInputStream stream) throws IOException {
+        System.out.println(stream.getFormat().toString());
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = stream.read(buffer)) != -1) {
+            result.write(buffer, 0, length);
+        }
+        byte[] sfx = result.toByteArray();
+        sfxList.add(sfx);
+        return sfxList.size()-1;
+    }
+    
+    public synchronized static void playSFX(int index) {
+        for(int i = 0; i < playingSFX.length; i++) {
+            if(playingSFX[i] == -1) {
+                playingSFX[i] = (byte) index;
+                playingSFXPos[i] = 0;
+                break;
+            }
+        }
+        // If there are no more slots left, don't play
     }
     
     public void run() {
@@ -58,12 +97,6 @@ public class AudioEngine implements Runnable {
 //                continue;
 //            }
             
-            for(int i = 0; i < next.length; i+=2) {
-                short value = (short)((Math.random())*2000);
-                next[i] = value;
-                next[i+1] = value;
-            }
-            
             if(bgm != null) {
                 byte[] data = new byte[4000];
                 for(int i = 0; i < data.length; i++) {
@@ -72,8 +105,32 @@ public class AudioEngine implements Runnable {
                     if(bgmPos >= bgm.length) bgmPos = 0;
                 }
                 for(int i = 0; i < 2000; i+=2) {
-                    next[i  ] += (data[i*2  ]&0x00FF)|((data[i*2+1]&0x00FF)<<8);
-                    next[i+1] += (data[i*2+2]&0x00FF)|((data[i*2+3]&0x00FF)<<8);
+                    next[i  ] = (short) (((short) ((data[i*2  ]&0x00FF)|((data[i*2+1]&0x00FF)<<8)))*bgmVolume);
+                    next[i+1] = (short) (((short) ((data[i*2+2]&0x00FF)|((data[i*2+3]&0x00FF)<<8)))*bgmVolume);
+                }
+            }
+            
+            for(int i = 0; i < playingSFX.length; i++) {
+                byte[] data = new byte[4000];
+                if(playingSFX[i] == -1) continue;
+                byte[] curSFX = sfxList.get(playingSFX[i]);
+                int j = 0;
+                for(; j < data.length; j++) {
+                    data[j] = curSFX[playingSFXPos[i]];
+                    playingSFXPos[i]++;
+                    if(playingSFXPos[i] >= curSFX.length) {
+                        playingSFX[i] = -1;
+                        break;
+                    }
+                }
+                if(j < data.length) {
+                    for(; j < data.length; j++) {
+                        data[j] = 0;
+                    }
+                }
+                for(j = 0; j < 2000; j+=2) {
+                    next[j  ] += (short) (((short) ((data[j*2  ]&0x00FF)|((data[j*2+1]&0x00FF)<<8))) * 0.1);
+                    next[j+1] += (short) (((short) ((data[j*2+2]&0x00FF)|((data[j*2+3]&0x00FF)<<8))) * 0.1);
                 }
             }
             

@@ -21,6 +21,11 @@ public abstract class Resource implements Runnable {
         this.engine = engine;
     }
     
+    public Resource(Thing parent, Object loadedResource, Engine engine) {
+        loaded = true;
+        resource = loadedResource;
+    }
+    
     public void run() {
         synchronized(this) {
             try { wait(); } catch(InterruptedException e) {}
@@ -34,4 +39,8 @@ public abstract class Resource implements Runnable {
     public abstract void load(String filename);
     
     public abstract void free();
+    
+    public void changeParent(Thing newParent) {
+        parent = newParent;
+    }
 }

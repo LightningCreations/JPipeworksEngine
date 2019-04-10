@@ -13,6 +13,10 @@ import com.lightning.jpipeworks.things.Thing;
 public class ImageResource extends Resource {
     private static HashMap<String, BufferedImage> prevLoads = new HashMap<>();
     
+    protected ImageResource(Thing parent, BufferedImage image, Engine engine) {
+        super(parent, image, engine);
+    }
+    
     public ImageResource(Thing parent, String filename, Engine engine) {
         super(parent, filename, engine);
     }

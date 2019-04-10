@@ -14,12 +14,17 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import com.lightning.jpipeworks.Game.GameState;
+import com.lightning.jpipeworks.resources.ImageListResource;
+import com.lightning.jpipeworks.resources.ImageResource;
 import com.lightning.jpipeworks.resources.Resource;
+import com.lightning.jpipeworks.things.Sprite;
 import com.lightning.jpipeworks.things.Thing;
 
 public class Engine {
-    private Game game = null;
+    Game game = null; // not private so PipeworksInternalGame can hack
     private BufferedImage image;
+    private GameState loadingState;
     public List<Thing> things = new ArrayList<>();
     public boolean isClosing = false;
     public boolean isLoading = false;
@@ -61,7 +66,8 @@ public class Engine {
         gameFrame.setLocationRelativeTo(null);
         gameFrame.setVisible(true);
         isLoading = true;
-        game.loadState(this, Game.GameState.MAIN_GAME);
+        game = new PipeworksInternalGame(game);
+        loadState(game, GameState.PIPEWORKS_INTRO);
         long prevTime = System.nanoTime();
         int numFrames = 0;
         double totalSPF = 0;
@@ -83,25 +89,25 @@ public class Engine {
                         }
                     }
                 }
-                if(allLoaded) isLoading = false;
-            } else {
-                ArrayList<Thing> curThings = (ArrayList<Thing>) ((ArrayList<Thing>) things).clone();
-                for(Thing thing : curThings)
-                    thing.update();
-                for(Thing thing : curThings)
-                    thing.render();
+                if(allLoaded) {
+                    isLoading = false;
+                    game.state = loadingState;
+                    game.doneLoading(this, game.state);
+                }
             }
+            ArrayList<Thing> curThings = (ArrayList<Thing>) ((ArrayList<Thing>) things).clone();
+            for(Thing thing : curThings)
+                thing.update();
+            for(Thing thing : curThings)
+                thing.render();
             mainImage.getGraphics().drawImage(image, 0, 0, null);
             Graphics g = image.getGraphics();
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, 1024, 576);
             gameFrame.repaint();
             long curTime;
-            while((curTime = System.nanoTime()) < (prevTime + 1000000000/60 - 1000000)) {
+            while((curTime = System.nanoTime()) < (prevTime + 1000000000/60)) {
                 try { Thread.sleep(1); } catch(InterruptedException e) {}
-            }
-            while((curTime = System.nanoTime()) < (prevTime + 1000000000/60 - 1000)) {
-                try { Thread.sleep(0, 1000); } catch(InterruptedException e) {}
             }
             totalSPF += (curTime-prevTime)/1000000000f;
             numFrames++;
@@ -110,7 +116,7 @@ public class Engine {
                 totalSPF = 0;
                 numFrames = 0;
             }
-            prevTime = curTime;
+            prevTime += 1000000000/60;
         }
         gameFrame.setVisible(false);
     }
@@ -130,5 +136,23 @@ public class Engine {
     public int getPixel(int x, int y) {
         if(x < 0 || x >= 1024 || y < 0 || y >= 576) return 0; // Black
         return image.getRGB(x, y);
+    }
+    
+    public void loadState(Game game, GameState state) {
+        loadingState = state;
+        isLoading = true;
+        game.loadState(this, state);
+    }
+    
+    public Sprite captureFrame() {
+        ImageResource capture = new CapturedImageResource(image, this);
+        ImageListResource frames = new ImageListResource(null, new ImageResource[] {capture}, this);
+        return new Sprite(frames, new Sprite.EmptyAI(), this);
+    }
+    
+    private class CapturedImageResource extends ImageResource {
+        private CapturedImageResource(BufferedImage image, Engine engine) {
+            super(null, image, engine);
+        }
     }
 }
