@@ -1,6 +1,7 @@
 package com.lightning.jpipeworks.things;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import javax.imageio.ImageIO;
 
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.resources.ImageListResource;
+import com.lightning.jpipeworks.resources.ImageResource;
 
 public class Sprite extends Thing {
     public static interface SpriteAI {
@@ -107,5 +109,24 @@ public class Sprite extends Thing {
             result[i] = toJPEG(i);
         }
         return result;
+    }
+    
+    // This'll be optimized later
+    public static Sprite fromJPEG(byte[] jpeg, Engine engine) {
+        try {
+            BufferedImage frame = ImageIO.read(new ByteArrayInputStream(jpeg));
+            ImageResource capture = new RecoveredImageResource(frame, engine);
+            ImageListResource frames = new ImageListResource(null, new ImageResource[] {capture}, engine);
+            return new Sprite(frames, new Sprite.EmptyAI(), engine);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    private static class RecoveredImageResource extends ImageResource {
+        private RecoveredImageResource(BufferedImage image, Engine engine) {
+            super(null, image, engine);
+        }
     }
 }
