@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import com.lightning.jpipeworks.Game.GameState;
+import com.lightning.jpipeworks.Game.PrimaryGameState;
 import com.lightning.jpipeworks.resources.ImageListResource;
 import com.lightning.jpipeworks.resources.ImageResource;
 import com.lightning.jpipeworks.resources.Resource;
@@ -31,6 +32,7 @@ public class Engine {
     public boolean[] keysDown = new boolean[65536];
     public static int numLoadThreads = 0; // static in case multiple engines are running
     public static final int MAX_LOAD_THREADS = 4;
+    public float delta = 0;
     
     public Engine(Game game) {
         this.game = game;
@@ -67,7 +69,7 @@ public class Engine {
         gameFrame.setVisible(true);
         isLoading = true;
         game = new PipeworksInternalGame(game);
-        loadState(game, GameState.PIPEWORKS_INTRO);
+        loadState(game, PrimaryGameState.PIPEWORKS_INTRO);
         long prevTime = System.nanoTime();
         int numFrames = 0;
         double totalSPF = 0;
@@ -109,14 +111,15 @@ public class Engine {
             while((curTime = System.nanoTime()) < (prevTime + 1000000000/60)) {
                 try { Thread.sleep(1); } catch(InterruptedException e) {}
             }
-            totalSPF += (curTime-prevTime)/1000000000f;
+            delta = (curTime-prevTime)/1000000000f;
+            totalSPF += delta;
             numFrames++;
             if(numFrames == 60) {
                 System.out.printf("FPS: %2.2f\n", 60/totalSPF);
                 totalSPF = 0;
                 numFrames = 0;
             }
-            prevTime += 1000000000/60;
+            prevTime = curTime;
         }
         gameFrame.setVisible(false);
     }

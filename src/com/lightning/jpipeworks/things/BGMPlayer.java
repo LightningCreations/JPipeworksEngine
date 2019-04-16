@@ -11,6 +11,7 @@ import com.lightning.jpipeworks.resources.AudioInputStreamResource;
 
 public class BGMPlayer extends Thing {
     public boolean startMusic = false;
+    public boolean loop = true;
     
     public BGMPlayer(String filename, Engine engine) {
         resources = new ArrayList<>();
@@ -23,6 +24,7 @@ public class BGMPlayer extends Thing {
         if(startMusic) {
             try {
                 AudioEngine.setBGM(((AudioInputStream) (resources.get(0).resource)));
+                AudioEngine.setBGMLoop(loop);
                 startMusic = false;
             } catch (IOException e) {
                 e.printStackTrace();

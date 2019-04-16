@@ -15,8 +15,9 @@ public class AudioEngine implements Runnable {
     private static boolean initialized = false;
     private static BlockingStream stream;
     private static Thread updateThread;
-    private static byte[] bgm = null;
-    private static int bgmPos;
+    public static byte[] bgm = null;
+    public static int bgmPos;
+    private static boolean bgmLoop = true;
     private static float bgmVolume = 1;
     private static ArrayList<byte[]> sfxList;
     private static byte[] playingSFX;
@@ -100,9 +101,9 @@ public class AudioEngine implements Runnable {
             if(bgm != null) {
                 byte[] data = new byte[4000];
                 for(int i = 0; i < data.length; i++) {
-                    data[i] = bgm[bgmPos];
+                    data[i] = bgmPos < bgm.length ? bgm[bgmPos] : 0;
                     bgmPos++;
-                    if(bgmPos >= bgm.length) bgmPos = 0;
+                    if(bgmPos >= bgm.length && bgmLoop) bgmPos = 0;
                 }
                 for(int i = 0; i < 2000; i+=2) {
                     next[i  ] = (short) (((short) ((data[i*2  ]&0x00FF)|((data[i*2+1]&0x00FF)<<8)))*bgmVolume);
@@ -137,5 +138,9 @@ public class AudioEngine implements Runnable {
             stream.write(next, 1000);
             Thread.yield();
         }
+    }
+
+    public static void setBGMLoop(boolean loop) {
+        bgmLoop = loop;
     }
 }
