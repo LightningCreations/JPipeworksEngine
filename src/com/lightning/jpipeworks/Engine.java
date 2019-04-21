@@ -28,7 +28,7 @@ public class Engine {
     private BufferedImage image;
     private GameState loadingState;
     public List<Thing> things = new ArrayList<>();
-    public boolean isClosing = false;
+    public volatile boolean isClosing = false;
     public boolean isLoading = false;
     public boolean[] keysDown = new boolean[65536];
     public static int numLoadThreads = 0; // static in case multiple engines are running
@@ -44,10 +44,6 @@ public class Engine {
     }
     
     public void start() {
-    	if(!EventQueue.isDispatchThread()) {
-    		EventQueue.invokeLater(this::start);
-    		return;
-    	}
         JFrame gameFrame = new JFrame("Pipeworks Engine");
         gameFrame.setResizable(false);
         BufferedImage mainImage = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
