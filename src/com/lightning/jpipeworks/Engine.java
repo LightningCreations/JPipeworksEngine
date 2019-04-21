@@ -1,6 +1,7 @@
 package com.lightning.jpipeworks;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -43,6 +44,10 @@ public class Engine {
     }
     
     public void start() {
+    	if(!EventQueue.isDispatchThread()) {
+    		EventQueue.invokeLater(this::start);
+    		return;
+    	}
         JFrame gameFrame = new JFrame("Pipeworks Engine");
         gameFrame.setResizable(false);
         BufferedImage mainImage = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
