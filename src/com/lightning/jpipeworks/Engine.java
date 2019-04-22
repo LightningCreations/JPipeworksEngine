@@ -154,6 +154,14 @@ public class Engine {
     	return image.getGraphics();
     }
     
+    public int getWindowLength() {
+    	return image.getWidth();
+    }
+    
+    public int getWindowHeight() {
+    	return image.getHeight();
+    }
+    
     public Sprite captureFrame() {
         ImageResource capture = new CapturedImageResource(image, this);
         ImageListResource frames = new ImageListResource(null, new ImageResource[] {capture}, this);
