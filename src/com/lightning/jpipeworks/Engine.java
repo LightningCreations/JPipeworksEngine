@@ -8,6 +8,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,15 +150,32 @@ public class Engine {
         game.loadState(this, state);
     }
     
+    public Graphics getAWTGraphicsObject() {
+    	return image.getGraphics();
+    }
+    
     public Sprite captureFrame() {
         ImageResource capture = new CapturedImageResource(image, this);
         ImageListResource frames = new ImageListResource(null, new ImageResource[] {capture}, this);
         return new Sprite(frames, new Sprite.EmptyAI(), this);
     }
     
-    private class CapturedImageResource extends ImageResource {
+    private static class CapturedImageResource extends ImageResource {
+    	
+    	/*
+    	 * Copy a buffered image instance.
+    	 * Answer by Klark from: https://stackoverflow.com/questions/3514158/how-do-you-clone-a-bufferedimage
+    	 * 
+    	 */
+    	private static BufferedImage deepCopy(BufferedImage bi) {
+		 ColorModel cm = bi.getColorModel();
+		 boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		 WritableRaster raster = bi.copyData(null);
+		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null).getSubimage(0, 0, bi.getWidth(), bi.getHeight());
+		}
+    	
         private CapturedImageResource(BufferedImage image, Engine engine) {
-            super(null, image, engine);
+            super(null, deepCopy(image), engine);
         }
     }
 }
