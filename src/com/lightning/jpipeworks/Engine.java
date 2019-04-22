@@ -27,6 +27,7 @@ import com.lightning.jpipeworks.things.Thing;
 public class Engine {
     Game game = null; // not private so PipeworksInternalGame can hack
     private BufferedImage image;
+    private BufferedImage mainImage;
     private GameState loadingState;
     public List<Thing> things = new ArrayList<>();
     public volatile boolean isClosing = false;
@@ -47,7 +48,7 @@ public class Engine {
     public void start() {
         JFrame gameFrame = new JFrame("Pipeworks Engine");
         gameFrame.setResizable(false);
-        BufferedImage mainImage = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
+        mainImage = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
         image = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
         ImageIcon icon = new ImageIcon(mainImage);
         JLabel mainLabel = new JLabel(icon);
@@ -149,6 +150,10 @@ public class Engine {
         game.loadState(this, state);
     }
     
+    /**
+     * @deprecated Recommended to not use due to lack of compatibility between languages
+     * @return the Graphics of the current image
+     */
     @Deprecated
     public Graphics getAWTGraphicsObject() {
     	return image.getGraphics();
@@ -163,27 +168,14 @@ public class Engine {
     }
     
     public Sprite captureFrame() {
-        ImageResource capture = new CapturedImageResource(image, this);
+        ImageResource capture = new CapturedImageResource(mainImage, this);
         ImageListResource frames = new ImageListResource(null, new ImageResource[] {capture}, this);
         return new Sprite(frames, new Sprite.EmptyAI(), this);
     }
     
     private static class CapturedImageResource extends ImageResource {
-    	
-    	/*
-    	 * Copy a buffered image instance.
-    	 * Answer by Klark from: https://stackoverflow.com/questions/3514158/how-do-you-clone-a-bufferedimage
-    	 * 
-    	 */
-    	private static BufferedImage deepCopy(BufferedImage bi) {
-		 ColorModel cm = bi.getColorModel();
-		 boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-		 WritableRaster raster = bi.copyData(null);
-		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null).getSubimage(0, 0, bi.getWidth(), bi.getHeight());
-		}
-    	
         private CapturedImageResource(BufferedImage image, Engine engine) {
-            super(null, deepCopy(image), engine);
+            super(null, image, engine);
         }
     }
 }
