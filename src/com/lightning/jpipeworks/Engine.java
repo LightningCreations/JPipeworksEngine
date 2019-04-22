@@ -1,7 +1,6 @@
 package com.lightning.jpipeworks;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -150,6 +149,7 @@ public class Engine {
         game.loadState(this, state);
     }
     
+    @Deprecated
     public Graphics getAWTGraphicsObject() {
     	return image.getGraphics();
     }
