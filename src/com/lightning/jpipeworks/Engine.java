@@ -78,6 +78,7 @@ public class Engine {
             if(isLoading) {
                 boolean allLoaded = true;
                 for(Thing thing : things) {
+                    if(thing.resources == null) continue;
                     synchronized(thing.resources) { // To allow resources to add other resources
                         for(Resource res : thing.resources) {
                             if(!res.loaded) {
@@ -157,11 +158,11 @@ public class Engine {
     	return image.getGraphics();
     }
     
-    public int getWindowLength() {
+    public int getWidth() {
     	return image.getWidth();
     }
     
-    public int getWindowHeight() {
+    public int getHeight() {
     	return image.getHeight();
     }
     

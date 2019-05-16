@@ -25,6 +25,7 @@ public class Sprite extends Thing {
     public int collisionColor = 0; // Match black
     public boolean collision = false;
     public boolean enable = false;
+    private static Camera globalCamera = null;
     
     public static class EmptyAI implements SpriteAI {
         public void runAI(Sprite sprite) {}
@@ -70,24 +71,39 @@ public class Sprite extends Thing {
     @Override
     public void render() {
         if(enable) {
+            if(globalCamera == null) {
+                for(Thing t : engine.things) {
+                    if(t instanceof Camera) {
+                        globalCamera = (Camera) t;
+                        break;
+                    }
+                }
+            }
+            int offsetX = 0, offsetY = 0;
+            if(globalCamera != null) {
+                offsetX = globalCamera.offsetX;
+                offsetY = globalCamera.offsetY;
+            }
             collision = false;
             if(frame < 0) frame = 0;
             if(frame >= resources.size()-1) frame = resources.size()-1;
-            BufferedImage thisImage = (BufferedImage) resources.get(frame+1).resource;
-            int trueWidth = thisImage.getWidth();
-            int trueHeight = thisImage.getHeight();
-            int xOff = (int)(x-width/2);
-            int yOff = (int)(y-height/2);
-            
-            for(int curX = 0; curX < width; curX++) {
-                for(int curY = 0; curY < height; curY++) {
-                    int x = curX*trueWidth/(int)width;
-                    int y = curY*trueHeight/(int)height;
-                    if(thisImage.getAlphaRaster() != null && thisImage.getRGB(x, y) >= 0) continue;
-                    if(collideEnable)
-                        if((engine.getPixel(curX+xOff, curY+yOff) & 0x00FFFFFF) == collisionColor)
-                            collision = true;
-                    engine.plotPixel(curX+xOff, curY+yOff, thisImage.getRGB(x, y));
+            if(resources.size() > frame+1) {
+                BufferedImage thisImage = (BufferedImage) resources.get(frame+1).resource;
+                int trueWidth = thisImage.getWidth();
+                int trueHeight = thisImage.getHeight();
+                int xOff = (int)(x-width/2)+offsetX;
+                int yOff = (int)(y-height/2)+offsetY;
+                
+                for(int curX = 0; curX < width; curX++) {
+                    for(int curY = 0; curY < height; curY++) {
+                        int x = curX*trueWidth/(int)width;
+                        int y = curY*trueHeight/(int)height;
+                        if(thisImage.getAlphaRaster() != null && thisImage.getRGB(x, y) >= 0) continue;
+                        if(collideEnable)
+                            if((engine.getPixel(curX+xOff, curY+yOff) & 0x00FFFFFF) == collisionColor)
+                                collision = true;
+                        engine.plotPixel(curX+xOff, curY+yOff, thisImage.getRGB(x, y));
+                    }
                 }
             }
         }

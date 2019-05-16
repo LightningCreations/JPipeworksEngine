@@ -111,27 +111,29 @@ public class AudioEngine implements Runnable {
             }
             
             for(int i = 0; i < playingSFX.length; i++) {
-                byte[] data = new byte[4000];
-                if(playingSFX[i] == -1) continue;
-                byte[] curSFX = sfxList.get(playingSFX[i]);
-                int j = 0;
-                for(; j < data.length; j++) {
-                    data[j] = curSFX[playingSFXPos[i]];
-                    playingSFXPos[i]++;
-                    if(playingSFXPos[i] >= curSFX.length) {
-                        playingSFX[i] = -1;
-                        break;
-                    }
-                }
-                if(j < data.length) {
+                try {
+                    byte[] data = new byte[4000];
+                    if(playingSFX[i] == -1) continue;
+                    byte[] curSFX = sfxList.get(playingSFX[i]);
+                    int j = 0;
                     for(; j < data.length; j++) {
-                        data[j] = 0;
+                        data[j] = curSFX[playingSFXPos[i]];
+                        playingSFXPos[i]++;
+                        if(playingSFXPos[i] >= curSFX.length) {
+                            playingSFX[i] = -1;
+                            break;
+                        }
                     }
-                }
-                for(j = 0; j < 2000; j+=2) {
-                    next[j  ] += (short) (((short) ((data[j*2  ]&0x00FF)|((data[j*2+1]&0x00FF)<<8))) * 0.1);
-                    next[j+1] += (short) (((short) ((data[j*2+2]&0x00FF)|((data[j*2+3]&0x00FF)<<8))) * 0.1);
-                }
+                    if(j < data.length) {
+                        for(; j < data.length; j++) {
+                            data[j] = 0;
+                        }
+                    }
+                    for(j = 0; j < 2000; j+=2) {
+                        next[j  ] += (short) (((short) ((data[j*2  ]&0x00FF)|((data[j*2+1]&0x00FF)<<8))) * 0.1);
+                        next[j+1] += (short) (((short) ((data[j*2+2]&0x00FF)|((data[j*2+3]&0x00FF)<<8))) * 0.1);
+                    }
+                } catch(IndexOutOfBoundsException e) {}
             }
             
             stream.write(next, 1000);
