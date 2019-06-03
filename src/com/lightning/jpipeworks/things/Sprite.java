@@ -17,7 +17,7 @@ public class Sprite extends Thing {
         public void runAI(Sprite sprite);
     }
     
-    private SpriteAI ai;
+    protected SpriteAI ai;
     public Engine engine;
     public float x, y, width, height;
     public int frame = 0;
