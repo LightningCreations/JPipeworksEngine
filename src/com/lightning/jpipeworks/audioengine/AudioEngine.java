@@ -17,7 +17,7 @@ public class AudioEngine implements Runnable {
     public static byte[] bgm = null;
     public static int bgmPos;
     private static boolean bgmLoop = true;
-    private static float bgmVolume = 1;
+    public static float bgmVolume = 1;
     private static ArrayList<byte[]> sfxList;
     private static byte[] playingSFX;
     private static int[] playingSFXPos;

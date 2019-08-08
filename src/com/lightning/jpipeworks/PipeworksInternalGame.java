@@ -9,6 +9,7 @@ public class PipeworksInternalGame extends Game {
     private boolean doneLoading = false;
     private BGMPlayer music;
     private PipeworksAnimationObject anim;
+    public static boolean doIntro = true;
 
     private class PipeworksAnimationObject extends Sprite {
         public PipeworksAnimationObject(Engine engine) {
@@ -18,7 +19,7 @@ public class PipeworksInternalGame extends Game {
         @Override
         public void update() {
             super.update();
-            if(AudioEngine.bgm != null && AudioEngine.bgmPos > AudioEngine.bgm.length && doneLoading) {
+            if(((AudioEngine.bgm != null && AudioEngine.bgmPos > AudioEngine.bgm.length) || !doIntro) && doneLoading) {
                 engine.game = realGame;
                 realGame.doneLoading(engine, PrimaryGameState.MAIN_MENU);
                 doneLoading = false;
@@ -28,7 +29,7 @@ public class PipeworksInternalGame extends Game {
         
         @Override
         public void render() {
-            super.render();
+            if(doIntro) super.render();
         }
     }
     
@@ -56,7 +57,7 @@ public class PipeworksInternalGame extends Game {
             break;
         case PIPEWORKS_INTRO:
             music.loop = false;
-            music.startMusic = true;
+            if(doIntro) music.startMusic = true;
             anim.enable = true;
             engine.loadState(realGame, PrimaryGameState.MAIN_MENU);
             break;
