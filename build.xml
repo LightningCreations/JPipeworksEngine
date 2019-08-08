@@ -11,7 +11,7 @@
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
     <property name="build" location="bin"/>
-    <property name="dist" location="../../dist"/>
+    <property name="dist" location="dist"/>
     <path id="JPipeworksEngine.classpath">
         <pathelement location="bin"/>
         <pathelement location="lib/JPortAudio.jar"/>
