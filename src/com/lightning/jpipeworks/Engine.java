@@ -80,7 +80,7 @@ public class Engine {
                 for(Thing thing : things) {
                     if(thing.resources == null) continue;
                     synchronized(thing.resources) { // To allow resources to add other resources
-                        for(Resource res : thing.resources) {
+                        for(Resource<?> res : thing.resources) {
                             if(!res.loaded) {
                                 allLoaded = false;
                                 if(!res.isLoading && numLoadThreads < MAX_LOAD_THREADS) {
@@ -99,7 +99,7 @@ public class Engine {
                     game.doneLoading(this, game.state);
                 }
             }
-            ArrayList<Thing> curThings = (ArrayList<Thing>) ((ArrayList<Thing>) things).clone();
+            ArrayList<Thing> curThings = new ArrayList<Thing>(things);
             for(Thing thing : curThings)
                 thing.update();
             for(Thing thing : curThings)

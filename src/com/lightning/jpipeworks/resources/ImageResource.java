@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
-public class ImageResource extends Resource {
+public class ImageResource extends Resource<BufferedImage> {
     private static HashMap<String, BufferedImage> prevLoads = new HashMap<>();
     
     protected ImageResource(Thing parent, BufferedImage image, Engine engine) {

@@ -14,7 +14,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
-public class ClipResource extends Resource {
+public class ClipResource extends Resource<Clip> {
     private static HashMap<String, Clip> prevLoads = new HashMap<>();
     
     public ClipResource(Thing parent, String filename, Engine engine) {

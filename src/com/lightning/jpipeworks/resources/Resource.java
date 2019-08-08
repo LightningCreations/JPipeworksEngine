@@ -3,11 +3,11 @@ package com.lightning.jpipeworks.resources;
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
-public abstract class Resource implements Runnable {
+public abstract class Resource<T> implements Runnable {
     public boolean loaded;
     public boolean isLoading;
     public boolean error;
-    public Object resource;
+    public T resource;
     public Thread loadingThread;
     public String filename;
     protected Thing parent;
@@ -21,7 +21,7 @@ public abstract class Resource implements Runnable {
         this.engine = engine;
     }
     
-    public Resource(Thing parent, Object loadedResource, Engine engine) {
+    public Resource(Thing parent, T loadedResource, Engine engine) {
         loaded = true;
         resource = loadedResource;
     }

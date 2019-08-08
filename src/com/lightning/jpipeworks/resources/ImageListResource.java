@@ -2,17 +2,18 @@ package com.lightning.jpipeworks.resources;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
-public class ImageListResource extends Resource {
+public class ImageListResource extends Resource<ArrayList<ImageResource>> {
     public ImageListResource(Thing parent, String pathname, Engine engine) {
         super(parent, pathname, engine);
     }
     
     public ImageListResource(Thing parent, ImageResource[] resources, Engine engine) {
-        super(parent, null, engine);
+        super(parent, new ArrayList<ImageResource>(Arrays.asList(resources)), engine);
         if(parent != null) {
             for(ImageResource res : resources) {
                 parent.resources.add(res);
