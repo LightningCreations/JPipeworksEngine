@@ -25,7 +25,8 @@ public class Sprite extends Thing {
     public int collisionColor = 0; // Match black
     public boolean collision = false;
     public boolean enable = false;
-    private static Camera globalCamera = null;
+    protected static Camera globalCamera = null;
+    public boolean offscreen = false;
     
     public static class EmptyAI implements SpriteAI {
         public void runAI(Sprite sprite) {}
@@ -85,6 +86,7 @@ public class Sprite extends Thing {
                 offsetY = globalCamera.offsetY;
             }
             collision = false;
+            offscreen = true;
             if(frame < 0) frame = 0;
             if(frame >= resources.size()-1) frame = resources.size()-1;
             if(resources.size() > frame+1) {
@@ -93,7 +95,6 @@ public class Sprite extends Thing {
                 int trueHeight = thisImage.getHeight();
                 int xOff = (int)(x-width/2)+offsetX;
                 int yOff = (int)(y-height/2)+offsetY;
-                
                 for(int curX = 0; curX < width; curX++) {
                     for(int curY = 0; curY < height; curY++) {
                         int x = curX*trueWidth/(int)width;
@@ -102,7 +103,9 @@ public class Sprite extends Thing {
                         if(collideEnable)
                             if((engine.getPixel(curX+xOff, curY+yOff) & 0x00FFFFFF) == collisionColor)
                                 collision = true;
+                        if(curX+xOff < 0 || curX+xOff >= engine.getWidth() || curY+yOff < 0 || curY+yOff >= engine.getHeight()) continue;
                         engine.plotPixel(curX+xOff, curY+yOff, thisImage.getRGB(x, y));
+                        offscreen = false;
                     }
                 }
             }
