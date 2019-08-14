@@ -15,6 +15,7 @@
     <path id="JPipeworksEngine.classpath">
         <pathelement location="bin"/>
         <pathelement location="lib/JPortAudio.jar"/>
+        <pathelement location="lib/Java Engine Interface-1.0.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
