@@ -5,11 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.LambdaMetafactory;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.invoke.MethodType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,6 +90,7 @@ public abstract class LoadableResource<T> extends Resource<T> {
 		this.value = new Cached<T>(loadedResource);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public final void load(String filename) {
 		if(cached.containsKey(filename)) {
