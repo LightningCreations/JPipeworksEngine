@@ -19,16 +19,19 @@ public class SFXPlayer extends Thing {
         AudioEngine.init();
     }
     
+    private void load(AudioInputStream in) {
+    	try {
+	    	id = AudioEngine.addSFX(in);
+	    	loaded = true;
+    	}catch(IOException e) {
+    		e.printStackTrace();
+    	}
+    }
+    
     @Override
     public void update() {
-        if(!loaded && resources.get(0).loaded.get()) {
-            try {
-                id = AudioEngine.addSFX((AudioInputStream) (resources.get(0).resource));
-                loaded = true;
-            } catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
+    	if(!loaded)
+    		resources.get(0).getResource().map(o->(AudioInputStream)o).ifPresent(this::load);
     }
 
     @Override
