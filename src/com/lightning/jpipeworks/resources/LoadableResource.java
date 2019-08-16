@@ -1,7 +1,15 @@
 package com.lightning.jpipeworks.resources;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.invoke.MethodType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +45,24 @@ public abstract class LoadableResource<T> extends Resource<T> {
 	}
 	
 	private static final Map<String,Cached<?>> cached = Collections.synchronizedMap(new HashMap<>());
-	private static final AtomicReference<Function<String,Optional<Supplier<InputStream>>>> lookupFn = new AtomicReference<>();
+	private static final AtomicReference<Function<String,Optional<Supplier<InputStream>>>> lookupFn = new AtomicReference<>(LoadableResource::defaultLookup);
+	
+	private static InputStream openFile(File f) {
+		try {
+			return new FileInputStream(f);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	
+	private static Optional<Supplier<InputStream>> defaultLookup(String s){
+		File f = new File(s);
+		if(f.exists())
+			return Optional.of(()->openFile(f));
+		else
+			return Optional.empty();
+	}
 	
 	private volatile Cached<T> value;
 	private final Class<?> valueType;
