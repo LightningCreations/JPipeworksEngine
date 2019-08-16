@@ -74,14 +74,17 @@ public abstract class LoadableResource<T> extends Resource<T> {
 	public final void load(String filename) {
 		if(cached.containsKey(filename)) {
 			Cached<?> c = cached.get(filename);
-			if(c.check(valueType))
+			if(c!=null&&c.check(valueType)) {
 				this.value = (Cached<T>)c;
+				this.resource = value.getValue();
+			}
 		}
 		else {
 			synchronized(LoadableResource.class) {
 				this.value = lookupFn.get().apply(filename).map(s->load(s,loader)).orElse(null);
 				if(this.value!=null)
 					cached.put(filename, value);
+				this.resource = value.getValue();
 			}
 		}	
 	}
