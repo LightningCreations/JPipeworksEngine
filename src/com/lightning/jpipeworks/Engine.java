@@ -28,7 +28,6 @@ import com.lightning.jpipeworks.resources.Resource;
 import com.lightning.jpipeworks.things.Sprite;
 import com.lightning.jpipeworks.things.Thing;
 
-import github.lightningcreations.lcjei.IEngineInterface;
 
 public class Engine {
     Game game = null; // not private so PipeworksInternalGame can hack
@@ -42,7 +41,6 @@ public class Engine {
     public static int numLoadThreads = 0; // static in case multiple engines are running
     public static final int MAX_LOAD_THREADS = 4;
     public float delta = 0;
-    private PipeworksEngineInterface jei;
     
     //AWT Specific Fields go here
     Window window;
@@ -54,7 +52,7 @@ public class Engine {
     
     public Engine(Game game) {
         this.game = game;
-        this.jei = new PipeworksEngineInterface(game,this);
+        
     }
     
     public void close() {
@@ -105,7 +103,7 @@ public class Engine {
                     if(thing.resources == null) continue;
                     synchronized(thing.resources) { // To allow resources to add other resources
                         for(Resource<?> res : thing.resources) {
-                            if(!res.loaded) {
+                            if(!res.loaded.get()) {
                                 allLoaded = false;
                                 if(!res.isLoading && numLoadThreads < MAX_LOAD_THREADS) {
                                     numLoadThreads++;
@@ -241,9 +239,6 @@ public class Engine {
         return new Sprite(frames, new Sprite.EmptyAI(), this);
     }
     
-    public IEngineInterface<Game> getEngineInterface(){
-    	return jei;
-    }
     
     private static class CapturedImageResource extends ImageResource {
         private CapturedImageResource(BufferedImage image, Engine engine) {

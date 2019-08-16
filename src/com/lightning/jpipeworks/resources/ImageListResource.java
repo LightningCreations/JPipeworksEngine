@@ -20,19 +20,20 @@ public class ImageListResource extends Resource<ArrayList<ImageResource>> {
             }
         }
     }
-
+    
+    //FIXME This garbage that isn't aware of LoadableResource.
     @Override
     public void load(String pathname) {
         ArrayList<ImageResource> resource = new ArrayList<>();
         for(int i = 0;; i++) {
-            File f = new File(String.format(pathname, i));
-            if(f.exists()) {
-                synchronized(parent.resources) {
-                    ImageResource cur = new ImageResource(parent, String.format(pathname, i), engine);
-                    parent.resources.add(cur);
-                    resource.add(cur);
-                }
-            } else break;
+        	 synchronized(parent.resources) {
+        		 String lpathname = String.format(pathname, i);
+                 ImageResource cur = new ImageResource(parent, lpathname, engine);
+                 if(!cur.canLoad(lpathname))
+                	 break;
+                 parent.resources.add(cur);
+                 resource.add(cur);
+             }
         }
         this.resource = resource;
     }

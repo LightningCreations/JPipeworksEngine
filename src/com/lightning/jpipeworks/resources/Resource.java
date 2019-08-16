@@ -1,13 +1,16 @@
 package com.lightning.jpipeworks.resources;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
 public abstract class Resource<T> implements Runnable {
-    public boolean loaded;
+    public final AtomicBoolean loaded = new AtomicBoolean(false);
     public boolean isLoading;
     public boolean error;
-    public T resource;
+    public T resource;//Public fields in a class where subclasses are very likely to have invariants... Very good design
     public Thread loadingThread;
     public String filename;
     protected Thing parent;
@@ -22,7 +25,7 @@ public abstract class Resource<T> implements Runnable {
     }
     
     public Resource(Thing parent, T loadedResource, Engine engine) {
-        loaded = true;
+        loaded.set(true);;
         resource = loadedResource;
     }
     
@@ -32,8 +35,24 @@ public abstract class Resource<T> implements Runnable {
         }
         isLoading = true;
         load(filename);
-        loaded = true;
+        loaded.set(true);
         Engine.numLoadThreads--;
+    }
+    
+    protected synchronized void queueReload() {
+    	if(this.loaded.get()) {
+	    	this.loaded.set(false);
+	    	this.resource = null;
+	    	this.loadingThread = new Thread(this);
+	    	this.loadingThread.start();
+    	}
+    }
+    
+    public Optional<T> getResource(){
+    	if(this.loaded.get())
+    		return Optional.ofNullable(resource);
+    	else
+    		return Optional.empty();
     }
     
     public abstract void load(String filename);

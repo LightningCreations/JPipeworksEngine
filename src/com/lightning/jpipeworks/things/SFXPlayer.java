@@ -21,7 +21,7 @@ public class SFXPlayer extends Thing {
     
     @Override
     public void update() {
-        if(!loaded && resources.get(0).loaded) {
+        if(!loaded && resources.get(0).loaded.get()) {
             try {
                 id = AudioEngine.addSFX((AudioInputStream) (resources.get(0).resource));
                 loaded = true;
