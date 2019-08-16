@@ -103,9 +103,11 @@ public abstract class LoadableResource<T> extends Resource<T> {
 		else {
 			synchronized(LoadableResource.class) {
 				this.value = lookupFn.get().apply(filename).map(s->load(s,loader)).orElse(null);
-				if(this.value!=null)
+				if(this.value!=null) {
+					System.err.printf("Failed to load non-existant resource %s",filename);
 					cached.put(filename, value);
-				this.resource = value.getValue();
+					this.resource = value.getValue();
+				}
 			}
 		}	
 	}
