@@ -40,7 +40,7 @@ public abstract class LoadableResource<T> extends Resource<T> {
 	}
 	
 	private static final Map<String,Cached<?>> cached = Collections.synchronizedMap(new HashMap<>());
-	private static final AtomicReference<Function<String,Optional<Supplier<InputStream>>>> lookupFn = new AtomicReference<>(LoadableResource::defaultLookup);
+	static final AtomicReference<Function<String,Optional<Supplier<InputStream>>>> lookupFn = new AtomicReference<>(LoadableResource::defaultLookup);
 	
 	private static InputStream openFile(File f) {
 		try {

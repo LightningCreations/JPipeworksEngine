@@ -13,7 +13,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
-public class AudioInputStreamResource extends LoadableResource<AudioInputStream> {
+public class AudioInputStreamResource extends StreamResource<AudioInputStream> {
    
 	private static Optional<AudioInputStream> loadStream(InputStream in){
 		try {
@@ -24,7 +24,7 @@ public class AudioInputStreamResource extends LoadableResource<AudioInputStream>
 	}
     
     public AudioInputStreamResource(Thing parent, String filename, Engine engine) {
-        super(parent, filename, engine,AudioInputStreamResource::loadStream,AudioInputStream.class);
+        super(parent, filename, engine,AudioInputStreamResource::loadStream);
     }
     
 }
