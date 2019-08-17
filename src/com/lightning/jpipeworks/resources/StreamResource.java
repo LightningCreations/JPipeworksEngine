@@ -8,12 +8,12 @@ import java.util.function.Function;
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
-public class StreamResource<T extends InputStream> extends Resource<T> {
+public abstract class StreamResource<T extends InputStream> extends Resource<T> {
 	
 	private Optional<T> stream = Optional.empty();
 	private final Function<InputStream,Optional<T>> filterStream;
 	
-	public StreamResource(Thing parent, String filename, Engine engine,Function<InputStream,Optional<T>> filterStream) {
+	protected StreamResource(Thing parent, String filename, Engine engine,Function<InputStream,Optional<T>> filterStream) {
 		super(parent, filename, engine);
 		this.filterStream = filterStream;
 	}
@@ -44,7 +44,7 @@ public class StreamResource<T extends InputStream> extends Resource<T> {
 		stream.ifPresent(StreamResource::close_unchecked);
 	}
 	
-	public Optional<T> getResource(){
+	public final Optional<T> getResource(){
 		return stream;
 	}
 
