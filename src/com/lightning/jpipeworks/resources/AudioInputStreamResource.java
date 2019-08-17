@@ -19,6 +19,7 @@ public class AudioInputStreamResource extends StreamResource<AudioInputStream> {
 		try {
 			return Optional.of(AudioSystem.getAudioInputStream(in));
 		} catch (UnsupportedAudioFileException | IOException e) {
+			e.printStackTrace();
 			return Optional.empty();
 		}
 	}
