@@ -15,7 +15,7 @@ public abstract class Resource<T> implements Runnable {
     public String filename;
     protected Thing parent;
     protected Engine engine;
-    public static ArrayList<Resource<?>> allResources = new ArrayList<>();
+    public static final ArrayList<Resource<?>> allResources = new ArrayList<>();
     
     public Resource(Thing parent, String filename, Engine engine) {
         loadingThread = new Thread(this);
