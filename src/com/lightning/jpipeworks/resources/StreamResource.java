@@ -26,6 +26,8 @@ public class StreamResource<T extends InputStream> extends Resource<T> {
 				.andThen(o->o.map(s->s.get()))
 				.andThen(o->o.flatMap(filterStream))
 				.apply(filename);
+		if(stream.isEmpty())
+			System.err.printf("Could not load Resource%s%n");
 	}
 	
 	private static void close_unchecked(InputStream in) {
