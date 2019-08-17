@@ -26,7 +26,7 @@ public abstract class StreamResource<T extends InputStream> extends Resource<T> 
 				.andThen(o->o.map(s->s.get()))
 				.andThen(o->o.flatMap(filterStream))
 				.apply(filename);
-		if(stream.isEmpty())
+		if(!stream.isPresent())
 			System.err.printf("Could not load Resource%s%n");
 	}
 	
