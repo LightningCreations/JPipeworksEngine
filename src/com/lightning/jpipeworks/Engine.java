@@ -1,8 +1,6 @@
 package com.lightning.jpipeworks;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -28,7 +26,6 @@ import com.lightning.jpipeworks.resources.Resource;
 import com.lightning.jpipeworks.things.Sprite;
 import com.lightning.jpipeworks.things.Thing;
 
-
 public class Engine {
     Game game = null; // not private so PipeworksInternalGame can hack
    
@@ -48,11 +45,8 @@ public class Engine {
     private BufferedImage mainImage;
     private Graphics2D imageGraphics;
 
-	
-    
     public Engine(Game game) {
         this.game = game;
-        
     }
     
     public void close() {
@@ -238,7 +232,6 @@ public class Engine {
         ImageListResource frames = new ImageListResource(null, new ImageResource[] {capture}, this);
         return new Sprite(frames, new Sprite.EmptyAI(), this);
     }
-    
     
     private static class CapturedImageResource extends ImageResource {
         private CapturedImageResource(BufferedImage image, Engine engine) {

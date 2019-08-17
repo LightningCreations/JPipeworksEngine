@@ -1,10 +1,8 @@
 package com.lightning.jpipeworks.resources;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Optional;
 
 import javax.imageio.ImageIO;
@@ -13,8 +11,6 @@ import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
 public class ImageResource extends LoadableResource<BufferedImage> {
-   
-	
 	private static Optional<BufferedImage> loadimg(InputStream strm){
 		try {
 			return Optional.of(ImageIO.read(strm));

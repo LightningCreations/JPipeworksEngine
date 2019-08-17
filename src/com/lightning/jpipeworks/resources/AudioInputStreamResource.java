@@ -1,9 +1,7 @@
 package com.lightning.jpipeworks.resources;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Optional;
 
 import javax.sound.sampled.AudioInputStream;
@@ -14,7 +12,6 @@ import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
 public class AudioInputStreamResource extends BufferedStreamResource<AudioInputStream> {
-   
 	private static Optional<AudioInputStream> loadStream(InputStream in){
 		try {
 			return Optional.of(AudioSystem.getAudioInputStream(in));
