@@ -28,7 +28,8 @@ import com.lightning.jpipeworks.things.Thing;
 
 public class Engine {
     Game game = null; // not private so PipeworksInternalGame can hack
-   
+    private Game realGame;
+    
     private GameState loadingState;
     public List<Thing> things = new ArrayList<>();
     public volatile boolean isClosing = false;
@@ -47,6 +48,11 @@ public class Engine {
 
     public Engine(Game game) {
         this.game = game;
+        this.realGame = game;
+    }
+    
+    public Game getRunningGame() {
+    	return this.realGame;//NOTE -> Don't touch, needed so that PipeworksEngineInterface can wrap an existing Engine object.
     }
     
     public void close() {
