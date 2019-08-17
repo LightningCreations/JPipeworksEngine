@@ -27,7 +27,7 @@ public abstract class StreamResource<T extends InputStream> extends Resource<T> 
 				.andThen(o->o.flatMap(filterStream))
 				.apply(filename);
 		if(!stream.isPresent())
-			System.err.printf("Could not load Resource%s%n");
+			System.err.printf("Could not load Resource%s%n",filename);
 	}
 	
 	private static void close_unchecked(InputStream in) {
