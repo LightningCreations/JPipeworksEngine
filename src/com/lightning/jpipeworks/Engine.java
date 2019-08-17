@@ -11,8 +11,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -39,6 +44,7 @@ public class Engine {
     public static int numLoadThreads = 0; // static in case multiple engines are running
     public static final int MAX_LOAD_THREADS = 4;
     public float delta = 0;
+    private AtomicReference<Optional<Function<String,Optional<Supplier<InputStream>>>>> engineResourceLookupFn = new AtomicReference<>(Optional.empty());
     
     //AWT Specific Fields go here
     Window window;
@@ -49,6 +55,18 @@ public class Engine {
     public Engine(Game game) {
         this.game = game;
         this.realGame = game;
+    }
+    
+    /**
+     * Sets the engine specific Resource lookup Function. This overrides the default lookup function set with {@link LoadableResource#setLookupFunction}.
+     * @param lookupFn The new lookup function. Must be Non-null (Throws NullPointerException if null)
+     */
+    public void setEngineResourceLookupFunction(Function<String,Optional<Supplier<InputStream>>> lookupFn) {
+    	engineResourceLookupFn.set(Optional.of(lookupFn));
+    }
+    
+    public Optional<Function<String,Optional<Supplier<InputStream>>>> getEngineResourceLookupFunction(){
+    	return engineResourceLookupFn.get();
     }
     
     public Game getRunningGame() {

@@ -102,7 +102,7 @@ public abstract class LoadableResource<T> extends Resource<T> {
 		}
 		else {
 			synchronized(LoadableResource.class) {
-				this.value = lookupFn.get().apply(filename).map(s->load(s,loader)).orElse(null);
+				this.value = engine.getEngineResourceLookupFunction().orElse(lookupFn.get()).apply(filename).map(s->load(s,loader)).orElse(null);
 				if(this.value!=null) {
 					cached.put(filename, value);
 					this.resource = value.getValue();

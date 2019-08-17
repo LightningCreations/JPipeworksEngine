@@ -20,9 +20,9 @@ public abstract class StreamResource<T extends InputStream> extends Resource<T> 
 
 	@Override
 	public void load(String filename) {
-		stream = LoadableResource
-				.lookupFn
-				.get()
+		stream = engine
+				.getEngineResourceLookupFunction()
+				.orElse(LoadableResource.lookupFn.get())
 				.andThen(o->o.map(s->s.get()))
 				.andThen(o->o.flatMap(filterStream))
 				.apply(filename);
