@@ -86,8 +86,6 @@ public class Engine {
         imageGraphics = image.createGraphics();
         ImageIcon icon = new ImageIcon(mainImage);
         JLabel mainLabel = new JLabel(icon);
-        //What the heck is all this Raw Swing operations.
-        //This is very dangerous. Swing isn't thread-safe, you can only guarantee results if this is done on the event dispatch thread.
         gameFrame.add(mainLabel);
         gameFrame.pack();
         gameFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
