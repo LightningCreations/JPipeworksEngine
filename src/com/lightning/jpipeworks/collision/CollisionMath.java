@@ -71,9 +71,10 @@ public class CollisionMath extends Collision {
 			this.iC = iC;
 		}
 		
-		public boolean eval(boolean a, boolean b) {
-			boolean A = iA ? !a : a;
-			boolean B = iB ? !b : b;
+		public boolean eval(Collision a, Collision b, Collision other) {
+			boolean A = iA ? !a.collide(other) : a.collide(other);
+			if(!x && A^iC) return false;
+			boolean B = iB ? !b.collide(other) : b.collide(other);
 			boolean c = x ? A^B : A||B;
 			return iC ? !c : c;
 		}
@@ -89,6 +90,6 @@ public class CollisionMath extends Collision {
 
 	@Override
 	public boolean collide(Collision other) {
-		return op.eval(a.collide(other), b.collide(other));
+		return op.eval(a, b, other);
 	}
 }
