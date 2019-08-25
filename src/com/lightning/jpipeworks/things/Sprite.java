@@ -12,7 +12,7 @@ import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.resources.ImageListResource;
 import com.lightning.jpipeworks.resources.ImageResource;
 
-public class Sprite extends Thing {
+public class Sprite extends PositionedThing {
     public static interface SpriteAI {
         public void runAI(Sprite sprite);
     }
@@ -148,4 +148,12 @@ public class Sprite extends Thing {
             super(null, image, engine);
         }
     }
+
+	public float getX() {
+		return x;
+	}
+
+	public float getY() {
+		return y;
+	}
 }

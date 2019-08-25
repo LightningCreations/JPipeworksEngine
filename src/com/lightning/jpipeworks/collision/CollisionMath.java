@@ -1,6 +1,6 @@
 package com.lightning.jpipeworks.collision;
 
-import com.lightning.jpipeworks.things.Sprite;
+import com.lightning.jpipeworks.things.PositionedThing;
 
 public class CollisionMath extends Collision {
 	public static class Operation {
@@ -84,7 +84,7 @@ public class CollisionMath extends Collision {
 	private Collision b;
 	private Operation op;
 	
-	public CollisionMath(Sprite anchor, float x, float y) {
+	public CollisionMath(PositionedThing anchor, float x, float y) {
 		super(anchor, x, y);
 	}
 

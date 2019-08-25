@@ -1,14 +1,14 @@
 package com.lightning.jpipeworks.collision;
 
-import com.lightning.jpipeworks.things.Sprite;
+import com.lightning.jpipeworks.things.PositionedThing;
 
 public abstract class Collision {
-	private Sprite anchor;
+	private PositionedThing anchor;
 	private float x;
 	private float y;
 	public Runnable whenCollided;
 	
-	public Collision(Sprite anchor, float x, float y) {
+	public Collision(PositionedThing anchor, float x, float y) {
 		this.anchor = anchor;
 		this.x = x;
 		this.y = y;
@@ -17,14 +17,24 @@ public abstract class Collision {
 	public abstract boolean collide(Collision b);
 	
 	public float getX() {
-		return anchor.x+x;
+		if(anchor == null) return x;
+		return anchor.getX()+x;
 	}
 	
 	public float getY() {
-		return anchor.y+y;
+		if(anchor == null) return y;
+		return anchor.getY()+y;
 	}
 	
-	public Sprite getAnchor() {
+	public void setOffsetX(float newX) {
+		x = newX;
+	}
+	
+	public void setOffsetY(float newY) {
+		y = newY;
+	}
+	
+	public PositionedThing getAnchor() {
 		return anchor;
 	}
 }

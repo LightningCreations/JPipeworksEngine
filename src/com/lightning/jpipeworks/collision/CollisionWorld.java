@@ -15,14 +15,11 @@ public class CollisionWorld extends Thing {
 		world.add(collision);
 	}
 
-	@Override
 	public void update() {
 		for(int ia = 0; ia < world.size(); ia++) {
 			Collision a = world.get(ia);
-			if(!a.getAnchor().enable) continue;
 			for(int ib = ia+1; ib < world.size(); ib++) {
 				Collision b = world.get(ib);
-				if(!b.getAnchor().enable) continue;
 				if(a.collide(b)) {
 					a.whenCollided.run();
 					b.whenCollided.run();
@@ -30,7 +27,30 @@ public class CollisionWorld extends Thing {
 			}
 		}
 	}
+	
+	public void collideWith(ArrayList<Collision> others) {
+		for(int ia = 0; ia < world.size(); ia++) {
+			Collision a = world.get(ia);
+			for(int ib = 0; ib < others.size(); ib++) {
+				Collision b = others.get(ib);
+				if(a.collide(b)) {
+					b.whenCollided.run();
+				}
+			}
+		}
+	}
+	
+	public void collideWith(Collision[] others) {
+		for(int ia = 0; ia < world.size(); ia++) {
+			Collision a = world.get(ia);
+			for(int ib = 0; ib < others.length; ib++) {
+				Collision b = others[ib];
+				if(a.collide(b)) {
+					b.whenCollided.run();
+				}
+			}
+		}
+	}
 
-	@Override
 	public void render() {}
 }

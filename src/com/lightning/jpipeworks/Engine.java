@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 
 import com.lightning.jpipeworks.Game.GameState;
 import com.lightning.jpipeworks.Game.PrimaryGameState;
+import com.lightning.jpipeworks.dbg.DebugHub;
 import com.lightning.jpipeworks.resources.ImageListResource;
 import com.lightning.jpipeworks.resources.ImageResource;
 import com.lightning.jpipeworks.resources.Resource;
@@ -138,14 +139,19 @@ public class Engine {
                 }
             }
             ArrayList<Thing> curThings = new ArrayList<Thing>(things);
-            for(Thing thing : curThings)
-                thing.update();
-            for(Thing thing : curThings)
-                thing.render();
+            if(!DebugHub.disableUpdate)
+	            for(Thing thing : curThings)
+	                thing.update();
+            if(!DebugHub.disableRender)
+	            for(Thing thing : curThings)
+	                thing.render();
+            DebugHub.update(this);
             mainImage.getGraphics().drawImage(image, 0, 0, null);
-            Graphics g = imageGraphics;
-            g.setColor(Color.BLACK);
-            g.fillRect(0, 0, 1024, 576);
+            if(!DebugHub.disableClear) {
+	            Graphics g = imageGraphics;
+	            g.setColor(Color.BLACK);
+	            g.fillRect(0, 0, 1024, 576);
+            }
            	gameFrame.repaint();
             long curTime;
             while((curTime = System.nanoTime()) < (prevTime + 1000000000/60)) {

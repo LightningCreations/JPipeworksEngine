@@ -1,9 +1,9 @@
 package com.lightning.jpipeworks.collision;
 
-import com.lightning.jpipeworks.things.Sprite;
+import com.lightning.jpipeworks.things.PositionedThing;
 
 public class CollisionPoint extends Collision {
-	public CollisionPoint(Sprite anchor, float x, float y) {
+	public CollisionPoint(PositionedThing anchor, float x, float y) {
 		super(anchor, x, y);
 	}
 

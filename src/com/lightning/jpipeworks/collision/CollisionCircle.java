@@ -1,11 +1,11 @@
 package com.lightning.jpipeworks.collision;
 
-import com.lightning.jpipeworks.things.Sprite;
+import com.lightning.jpipeworks.things.PositionedThing;
 
 public class CollisionCircle extends Collision {
 	private float rSq;
 	
-	public CollisionCircle(Sprite anchor, float x, float y, float r) {
+	public CollisionCircle(PositionedThing anchor, float x, float y, float r) {
 		super(anchor, x, y);
 		this.rSq = r*r;
 	}
