@@ -13,11 +13,14 @@ import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -46,7 +49,7 @@ public class Engine {
     public static final int MAX_LOAD_THREADS = 4;
     public float delta = 0;
     private AtomicReference<Optional<Function<String,Optional<Supplier<InputStream>>>>> engineResourceLookupFn = new AtomicReference<>(Optional.empty());
-    
+    private static final Set<Engine> runningEngines = new HashSet<>();
     //AWT Specific Fields go here
     Window window;
     private BufferedImage image;
@@ -74,12 +77,18 @@ public class Engine {
     	return this.realGame;//NOTE -> Don't touch, needed so that PipeworksEngineInterface can wrap an existing Engine object.
     }
     
+    public static Stream<Engine> getRunningPipeworksEngines(){
+    	return runningEngines.stream();
+    }
+    
     public void close() {
         isClosing = true;
     }
     
     
     public void start() {
+    	//TODO Move the following line to the initialization method when that is created
+    	runningEngines.add(this);
         JFrame gameFrame = new JFrame("Pipeworks Engine");
         gameFrame.setResizable(false);
         mainImage = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
@@ -170,6 +179,7 @@ public class Engine {
         isRunning = false;
         gameFrame.setVisible(false);
         window = null;
+        runningEngines.remove(this);
     }
     
     public void plotPixel(int x, int y, int r, int g, int b) {
