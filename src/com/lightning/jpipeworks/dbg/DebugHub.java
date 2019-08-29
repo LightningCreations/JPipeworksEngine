@@ -81,8 +81,8 @@ public class DebugHub {
         	for(int i = 0; i < hbViewColliders.length; i++) {
         		hbViewColliders[i].setOffsetX(hbViewPos);
         		engine.plotPixel(hbViewPos, i, 0xFFFF0000);
-        		if(engine.getPixel(hbViewPos-1, i) != 0xFFFFFFFF) {
-        			engine.plotPixel(hbViewPos-1, i, 0);
+        		if(engine.getPixel(hbViewPos-3, i) != 0xFFFFFFFF) {
+        			engine.plotPixel(hbViewPos-3, i, 0);
         		}
         	}
         	hbViewWorld.collideWith(hbViewColliders);
