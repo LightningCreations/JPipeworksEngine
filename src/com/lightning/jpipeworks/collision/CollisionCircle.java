@@ -39,6 +39,12 @@ public class CollisionCircle extends Collision {
 			float distSq = diffX*diffX+diffY*diffY;
 			
 			return distSq < rSq;
-		} else return false;
+		} else if(b instanceof CollisionCone)
+			return b.collide(this);
+		else return false;
+	}
+	
+	public float getRadiusSquared() {
+		return rSq;
 	}
 }
