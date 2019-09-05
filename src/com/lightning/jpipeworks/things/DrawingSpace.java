@@ -23,9 +23,7 @@ public interface DrawingSpace {
 	public void fillEllipse(int x,int y,int rx,int ry,int rgb);
 	
 	public default DrawingSpace scale(float originX,float originY,float xscale,float yscale) {
-		if(xscale==1&&yscale==1)
-			return this;
-		else if(xscale==0||yscale==0)
+		if(xscale==0||yscale==0)
 			throw new IllegalArgumentException("Cannot scale Space by 0 on any axis");
 		else
 			return new DrawingSpace() {

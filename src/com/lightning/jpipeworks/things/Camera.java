@@ -62,5 +62,15 @@ public abstract class Camera extends PositionedThing implements DrawingSpace {
 	public void fillRect(int x1, int y1, int x2, int y2, int rgb) {
 		origin.fillRect(x1-offsetX, y1-offsetY, x2-offsetX, y2-offsetY, rgb);
 	}
+
+	@Override
+	public void drawEllipse(int x, int y, int rx, int ry, int rgb) {
+		origin.drawEllipse(x-offsetX, y-offsetY, rx, ry, rgb);
+	}
+
+	@Override
+	public void fillEllipse(int x, int y, int rx, int ry, int rgb) {
+		origin.fillEllipse(x-offsetX, y-offsetY, rx, ry, rgb);
+	}
 	
 }
