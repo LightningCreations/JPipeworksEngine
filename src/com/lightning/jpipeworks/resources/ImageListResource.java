@@ -34,14 +34,6 @@ public class ImageListResource extends Resource<ArrayList<ImageResource>> {
                  resource.add(cur);
              }
         }
-        for(ImageResource r:resource)
-        	while(!r.loaded.get())
-	        	synchronized(this) {
-	        		try {
-						this.wait();
-					} catch (InterruptedException e) {						
-					}
-	        	}
         this.resource = resource;
     }
 
