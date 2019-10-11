@@ -1,10 +1,6 @@
 package com.lightning.jpipeworks;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -12,6 +8,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +28,7 @@ import com.lightning.jpipeworks.Game.PrimaryGameState;
 import com.lightning.jpipeworks.dbg.DebugHub;
 import com.lightning.jpipeworks.resources.ImageListResource;
 import com.lightning.jpipeworks.resources.ImageResource;
+import com.lightning.jpipeworks.resources.LoadableResource;
 import com.lightning.jpipeworks.resources.Resource;
 import com.lightning.jpipeworks.things.Sprite;
 import com.lightning.jpipeworks.things.Thing;
@@ -51,14 +49,62 @@ public class Engine {
     private AtomicReference<Optional<Function<String,Optional<Supplier<InputStream>>>>> engineResourceLookupFn = new AtomicReference<>(Optional.empty());
     private static final Set<Engine> runningEngines = new HashSet<>();
     //AWT Specific Fields go here
-    Window window;
+    Container window;
     private BufferedImage image;
     private BufferedImage mainImage;
     private Graphics2D imageGraphics;
 
+    private volatile boolean initialized;
+    private volatile boolean running;
+    private Thread gameThread;
+
     public Engine(Game game) {
         this.game = game;
         this.realGame = game;
+    }
+
+    /**
+     * Gets the container which encapsilates the window.
+     * This Method is not supported for use within Pipeworks itself, and is provided for use by LCJEI Implementations.
+     * It is highly recommended that Pipeworks Games use the facilities provided by Engine to manipulate pipeworks.
+     *
+     * If Engine was initialized using {@link #init(Container)}, then returns that container, or some unspecified child of that container.
+     * If Engine was initialized using {@link #init()}, the container returned is unspecified, and may be null, unless this engine is Bound to an LCJEI EngineInterface object.
+     *
+     * In the second case, the returned container is only guaranteed to be suitable to pass to the initialize method of an EngineInterface.
+     * In particular, it is not suitable to be directly accessed by the Pipeworks game.
+     *
+     *
+     * This method cannot be called before the engine is initialized using {@link #init()} or {@link #init(Container)}.
+     *  If called while not initialized, an UnsupportedOperationException is thrown
+     * @return A Container
+     *
+     * @see #getAWTGraphicsObject() which provides access to AWT to Game Objects that have a specific reason for using it.
+     */
+    public Container getContainer(){
+        // Note to Rdr: DO NOT under any circumstances remove this.
+        // Pipeworks-JEI uses this to implement getCurrentDrawContainer.
+        // You can heck around with its internals all you want though, as long as the above contract is upheld
+
+        if(!initialized)
+            throw new UnsupportedOperationException("Engine is not initialized yet");
+        return window;
+    }
+
+    public void suspend(){
+        if(!initialized)
+            throw new UnsupportedOperationException("Engine is not initialized yet");
+        if(!running)
+            throw new UnsupportedOperationException("Game is already suspended");
+        running = false;
+    }
+
+    public void resume(){
+        if(!initialized)
+            throw new UnsupportedOperationException("Engine is not initialized yet");
+        if(running)
+            throw new UnsupportedOperationException("Game is not suspended");
+        running = true;
     }
     
     /**
@@ -74,7 +120,8 @@ public class Engine {
     }
     
     public Game getRunningGame() {
-    	return this.realGame;//NOTE -> Don't touch, needed so that PipeworksEngineInterface can wrap an existing Engine object.
+    	return this.realGame;
+    	//NOTE -> Don't touch, needed so that PipeworksEngineInterface can wrap an existing Engine object.
     }
     
     public static Stream<Engine> getRunningPipeworksEngines(){
@@ -82,29 +129,32 @@ public class Engine {
     }
     
     public void close() {
+        if(!initialized)
+            throw new IllegalStateException("Game is not Initialized");
         isClosing = true;
     }
-    
-    
-    public void start() {
-    	//TODO Move the following line to the initialization method when that is created
-    	runningEngines.add(this);
-        JFrame gameFrame = new JFrame("Pipeworks Engine");
-        gameFrame.setResizable(false);
+
+
+    public synchronized void init(Container target){
+        if(this.initialized)
+            throw new IllegalStateException("Already Initialized");
+        runningEngines.add(this);
         mainImage = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
         image = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
         imageGraphics = image.createGraphics();
         ImageIcon icon = new ImageIcon(mainImage);
         JLabel mainLabel = new JLabel(icon);
-        gameFrame.add(mainLabel);
-        gameFrame.pack();
-        gameFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        gameFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                close();
-            }
-        });
-        gameFrame.addKeyListener(new KeyAdapter() {
+        target.add(mainLabel);
+        target.setPreferredSize(mainLabel.getPreferredSize());
+        if(target instanceof Window) {
+            ((Window) target).addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    close();
+                }
+            });
+
+        }
+        target.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 keysDown[e.getKeyCode()] = true;
             }
@@ -112,9 +162,45 @@ public class Engine {
                 keysDown[e.getKeyCode()] = false;
             }
         });
-        gameFrame.setLocationRelativeTo(null);
-        gameFrame.setVisible(true);
-        window = gameFrame;
+        window = target;
+        this.initialized = true;
+    }
+
+    public void init(){
+        try {
+            EventQueue.invokeAndWait(()->{
+                JFrame frame = new JFrame("Pipeworks Engine");
+                init(frame);
+                frame.setResizable(false);
+            });
+        } catch(InterruptedException ignored){}
+        catch (InvocationTargetException e) {
+            if(e.getCause() instanceof IllegalStateException)
+                throw (IllegalStateException)e.getCause();
+            e.printStackTrace();
+            this.initialized = false;
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void closeJoin() throws InterruptedException {
+        this.close();
+        gameThread.join();
+    }
+
+    public synchronized void start(){
+        if(!this.initialized)
+            throw new UnsupportedOperationException("Game not started yet");
+        if(this.running)
+            throw new UnsupportedOperationException("Game already running");
+        this.running = true;
+        this.gameThread = new Thread(this::start0);
+        this.gameThread.start();
+    }
+
+    private void start0() {
+        if(window instanceof Window)
+            window.setVisible(true);
         isLoading = true;
         game = new PipeworksInternalGame(game);
         loadState(game, PrimaryGameState.PIPEWORKS_INTRO);
@@ -147,39 +233,47 @@ public class Engine {
                     game.doneLoading(this, game.state);
                 }
             }
-            ArrayList<Thing> curThings = new ArrayList<Thing>(things);
-            if(!DebugHub.disableUpdate)
-	            for(Thing thing : curThings)
-	                thing.update();
-            if(!DebugHub.disableRender)
-	            for(Thing thing : curThings)
-	                thing.render();
-            DebugHub.update(this);
-            mainImage.getGraphics().drawImage(image, 0, 0, null);
-            if(!DebugHub.disableClear) {
-	            Graphics g = imageGraphics;
-	            g.setColor(Color.BLACK);
-	            g.fillRect(0, 0, 1024, 576);
+            if(running) {
+                ArrayList<Thing> curThings = new ArrayList<Thing>(things);
+                if (!DebugHub.disableUpdate)
+                    for (Thing thing : curThings)
+                        thing.update();
+                if (!DebugHub.disableRender)
+                    for (Thing thing : curThings)
+                        thing.render();
+                DebugHub.update(this);
+                mainImage.getGraphics().drawImage(image, 0, 0, null);
+                if (!DebugHub.disableClear) {
+                    Graphics g = imageGraphics;
+                    g.setColor(Color.BLACK);
+                    g.fillRect(0, 0, 1024, 576);
+                }
+                window.repaint();
+                long curTime;
+                while ((curTime = System.nanoTime()) < (prevTime + 1000000000 / 60)) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                    }
+                }
+                delta = (curTime - prevTime) / 1000000000f;
+                totalSPF += delta;
+                numFrames++;
+                if (numFrames == 60) {
+                    System.out.printf("FPS: %2.2f\n", 60 / totalSPF);
+                    totalSPF = 0;
+                    numFrames = 0;
+                }
+                prevTime = curTime;
             }
-           	gameFrame.repaint();
-            long curTime;
-            while((curTime = System.nanoTime()) < (prevTime + 1000000000/60)) {
-                try { Thread.sleep(1); } catch(InterruptedException e) {}
-            }
-            delta = (curTime-prevTime)/1000000000f;
-            totalSPF += delta;
-            numFrames++;
-            if(numFrames == 60) {
-                System.out.printf("FPS: %2.2f\n", 60/totalSPF);
-                totalSPF = 0;
-                numFrames = 0;
-            }
-            prevTime = curTime;
         }
         isRunning = false;
-        gameFrame.setVisible(false);
+        if(window instanceof Window)
+            window.setVisible(false);
         window = null;
         runningEngines.remove(this);
+        this.running = false;
+        this.initialized = false;
     }
     
     public void plotPixel(int x, int y, int r, int g, int b) {
