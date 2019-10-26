@@ -169,6 +169,7 @@ public class Engine {
             EventQueue.invokeAndWait(()->{
                 JFrame frame = new JFrame("Pipeworks Engine");
                 init(frame);
+                frame.setLocationRelativeTo(null);
                 frame.pack();
                 frame.setResizable(false);
             });
