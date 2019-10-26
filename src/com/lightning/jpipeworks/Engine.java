@@ -146,14 +146,12 @@ public class Engine {
         JLabel mainLabel = new JLabel(icon);
         target.add(mainLabel);
         target.setPreferredSize(mainLabel.getPreferredSize());
-        if(target instanceof Window) {
+        if(target instanceof Window)
             ((Window) target).addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
             });
-
-        }
         target.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 keysDown[e.getKeyCode()] = true;
@@ -171,6 +169,7 @@ public class Engine {
             EventQueue.invokeAndWait(()->{
                 JFrame frame = new JFrame("Pipeworks Engine");
                 init(frame);
+                frame.pack();
                 frame.setResizable(false);
             });
         } catch(InterruptedException ignored){}
@@ -196,6 +195,11 @@ public class Engine {
         this.running = true;
         this.gameThread = new Thread(this::start0);
         this.gameThread.start();
+    }
+
+    public synchronized void join() throws InterruptedException {
+        if(this.running)
+            this.gameThread.join();
     }
 
     private void start0() {
