@@ -154,8 +154,6 @@ public class Engine {
             ((Window)target).pack();
         }else
          target.setPreferredSize(mainLabel.getPreferredSize());
-        if(target instanceof Window)
-
         target.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 keysDown[e.getKeyCode()] = true;
