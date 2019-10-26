@@ -145,13 +145,17 @@ public class Engine {
         ImageIcon icon = new ImageIcon(mainImage);
         JLabel mainLabel = new JLabel(icon);
         target.add(mainLabel);
-        target.setPreferredSize(mainLabel.getPreferredSize());
-        if(target instanceof Window)
+        if(target instanceof Window) {
             ((Window) target).addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
             });
+            ((Window)target).pack();
+        }else
+         target.setPreferredSize(mainLabel.getPreferredSize());
+        if(target instanceof Window)
+
         target.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 keysDown[e.getKeyCode()] = true;
