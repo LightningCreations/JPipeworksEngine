@@ -65,7 +65,7 @@
         <!-- Create the distribution directory -->
         <mkdir dir="${dist}/lib" />
  
-        <jar destfile="/JPipeworksEngine.jar" basedir="${build}">
+        <jar destfile="${dist}/lib/JPipeworksEngine.jar" basedir="${build}">
         	<manifest>
         		<attribute name="Automatic-Module-Name" value="com.lightning.pipeworks"/>
         	</manifest>
