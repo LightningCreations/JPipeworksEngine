@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/JPortAudio.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="JPipeworksEngine/native"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="src" output="bin" path="src"/>
+	<classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
+	<classpathentry kind="con" path="H:/Sentry/JPipeworksEngine/bin"/>
+	<classpathentry kind="lib" path="H:/Sentry/JPipeworksEngine/lib/JPortAudio.jar"/>
+	<classpathentry kind="con" path="H:/Sentry/JPipeworksEngine/lib/Java Engine Interface-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

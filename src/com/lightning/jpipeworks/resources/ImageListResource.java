@@ -34,7 +34,6 @@ public class ImageListResource extends Resource<ArrayList<ImageResource>> {
                  resource.add(cur);
              }
         }
-        this.resource = resource;
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.lightning.jpipeworks.collision;
 
-import com.lightning.jpipeworks.things.PositionedThing;
-
 public class CollisionMath extends Collision {
 	public static class Operation {
 		// because writing true/false is cumbersome:
