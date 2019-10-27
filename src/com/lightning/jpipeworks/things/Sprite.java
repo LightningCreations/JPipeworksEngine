@@ -95,8 +95,8 @@ public class Sprite extends PositionedThing {
                 int trueHeight = thisImage.getHeight();
                 int xOff = (int)(x-width/2)+offsetX;
                 int yOff = (int)(y-height/2)+offsetY;
-                for(int curX = 0; curX < width; curX++) {
-                    for(int curY = 0; curY < height; curY++) {
+                for(int curX = 0; curX < width; curX+=2) {
+                    for(int curY = 0; curY < height; curY+=2) {
                         int x = curX*trueWidth/(int)width;
                         int y = curY*trueHeight/(int)height;
                         if(thisImage.getAlphaRaster() != null && thisImage.getRGB(x, y) >= 0) continue;
@@ -105,6 +105,9 @@ public class Sprite extends PositionedThing {
                                 collision = true;
                         if(curX+xOff < 0 || curX+xOff >= engine.getWidth() || curY+yOff < 0 || curY+yOff >= engine.getHeight()) continue;
                         engine.plotPixel(curX+xOff, curY+yOff, thisImage.getRGB(x, y));
+                        engine.plotPixel(curX+xOff+1, curY+yOff, thisImage.getRGB(x, y));
+                        engine.plotPixel(curX+xOff, curY+yOff+1, thisImage.getRGB(x, y));
+                        engine.plotPixel(curX+xOff+1, curY+yOff+1, thisImage.getRGB(x, y));
                         offscreen = false;
                     }
                 }

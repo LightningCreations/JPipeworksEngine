@@ -28,11 +28,8 @@ public class ImageListResource extends Resource<ArrayList<ImageResource>> {
         	 synchronized(parent.resources) {
         		 String lpathname = String.format(pathname, i);
                  ImageResource cur = new ImageResource(parent, lpathname, engine);
-                 if(!cur.canLoad(lpathname)) {
-                	 System.err.printf("Checking Path %s failed, terminating list lookup%n",lpathname);
+                 if(!cur.canLoad(lpathname))
                 	 break;
-                 }else
-                	 System.err.printf("Loading subresource %s%n",lpathname);
                  parent.resources.add(cur);
                  resource.add(cur);
              }
