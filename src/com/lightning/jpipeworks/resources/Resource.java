@@ -39,15 +39,15 @@ public abstract class Resource<T> implements Runnable {
         isLoading = true;
         load(filename);
         loaded.set(true);
-        Engine.numLoadThreads--;
+        Engine.numLoadThreads.decrementAndGet();
     }
     
     protected synchronized void queueReload() {
     	if(this.loaded.get()) {
-	    	this.loaded.set(false);
-	    	this.resource = null;
-	    	this.loadingThread = new Thread(this);
-	    	this.loadingThread.start();
+	    this.loaded.set(false);
+	    this.resource = null;
+	    this.loadingThread = new Thread(this);
+	    this.loadingThread.start();
     	}
     }
     
