@@ -45,7 +45,7 @@ public class Engine {
     volatile boolean isRunning = false;
     public boolean[] keysDown = new boolean[65536];
     public static AtomicInteger numLoadThreads = new AtomicInteger(0); // static in case multiple engines are running
-    public static final int MAX_LOAD_THREADS = (int)(long)Long.getLong("jpipeworks.loading.maxloadthreads",16);
+    public static final int MAX_LOAD_THREADS = (int)(long)Long.getLong("jpipeworks.loading.maxloadthreads",2);
     public float delta = 0;
     private AtomicReference<Optional<Function<String,Optional<Supplier<InputStream>>>>> engineResourceLookupFn = new AtomicReference<>(Optional.empty());
     private static final Set<Engine> runningEngines = new HashSet<>();
@@ -220,7 +220,7 @@ public class Engine {
             if(isLoading) {
                 boolean allLoaded = true;
                 int i = 0;
-                System.out.println("numLoadThreads: " + numLoadThreads.get());
+                // System.out.println("numLoadThreads: " + numLoadThreads.get());
                 for(Thing thing : things) {
                     if(thing.resources == null) continue;
                     synchronized(thing.resources) { // To allow resources to add other resources
