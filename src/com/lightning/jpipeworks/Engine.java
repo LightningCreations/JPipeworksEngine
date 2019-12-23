@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -44,8 +45,8 @@ public class Engine implements DrawingSpace {
     public boolean isLoading = false;
     volatile boolean isRunning = false;
     public boolean[] keysDown = new boolean[65536];
-    public static int numLoadThreads = 0; // static in case multiple engines are running
-    public static final int MAX_LOAD_THREADS = 4;
+    public static AtomicInteger numLoadThreads = new AtomicInteger(0); // static in case multiple engines are running
+    public static final int MAX_LOAD_THREADS = (int)(long)Long.getLong("jpipeworks.loading.maxloadthreads",16);
     public float delta = 0;
     private AtomicReference<Optional<Function<String,Optional<Supplier<InputStream>>>>> engineResourceLookupFn = new AtomicReference<>(Optional.empty());
     private static final Set<Engine> runningEngines = new HashSet<>();
@@ -175,6 +176,7 @@ public class Engine implements DrawingSpace {
                 frame.setLocationRelativeTo(null);
                 frame.pack();
                 frame.setResizable(false);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             });
         } catch(InterruptedException ignored){}
         catch (InvocationTargetException e) {
@@ -209,7 +211,7 @@ public class Engine implements DrawingSpace {
     private void start0() {
         if(window instanceof Window)
             window.setVisible(true);
-        isLoading = true;
+	isLoading = true;
         game = new PipeworksInternalGame(game);
         loadState(game, PrimaryGameState.PIPEWORKS_INTRO);
         long prevTime = System.nanoTime();
@@ -219,21 +221,27 @@ public class Engine implements DrawingSpace {
         while(!isClosing) {
             if(isLoading) {
                 boolean allLoaded = true;
+                int i = 0;
+                System.out.println("numLoadThreads: " + numLoadThreads.get());
                 for(Thing thing : things) {
                     if(thing.resources == null) continue;
                     synchronized(thing.resources) { // To allow resources to add other resources
+                        int j = 0;
                         for(Resource<?> res : thing.resources) {
                             if(!res.loaded.get()) {
                                 allLoaded = false;
-                                if(!res.isLoading && numLoadThreads < MAX_LOAD_THREADS) {
-                                    numLoadThreads++;
+                                if(!res.isLoading && numLoadThreads.get() < MAX_LOAD_THREADS) {
+                                    System.out.println("Loading Resource "+j+"/"+thing.resources.size()+" in Thing "+i+"/"+things.size());
+                                    numLoadThreads.incrementAndGet();
                                     synchronized(res) {
                                         res.notify();
                                     }
                                 }
                             }
+                            j++;
                         }
                     }
+                    i++;
                 }
                 if(allLoaded) {
                     isLoading = false;
