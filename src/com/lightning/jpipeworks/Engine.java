@@ -175,6 +175,7 @@ public class Engine {
                 frame.setLocationRelativeTo(null);
                 frame.pack();
                 frame.setResizable(false);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             });
         } catch(InterruptedException ignored){}
         catch (InvocationTargetException e) {
