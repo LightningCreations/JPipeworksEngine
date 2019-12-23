@@ -35,7 +35,7 @@ import com.lightning.jpipeworks.things.Sprite;
 import com.lightning.jpipeworks.things.Thing;
 
 public class Engine {
-    Game game = null; // not private so PipeworksInternalGame can hack
+    Game game = null; // not private so PipeworksInternalGame can hack // should really be an access-protected mutator method
     private Game realGame;
     
     private GameState loadingState;
@@ -45,7 +45,7 @@ public class Engine {
     volatile boolean isRunning = false;
     public boolean[] keysDown = new boolean[65536];
     public static AtomicInteger numLoadThreads = new AtomicInteger(0); // static in case multiple engines are running
-    public static final int MAX_LOAD_THREADS = 16;
+    public static final int MAX_LOAD_THREADS = (int)(long)Long.getLong("jpipeworks.loading.maxloadthreads",16);
     public float delta = 0;
     private AtomicReference<Optional<Function<String,Optional<Supplier<InputStream>>>>> engineResourceLookupFn = new AtomicReference<>(Optional.empty());
     private static final Set<Engine> runningEngines = new HashSet<>();

@@ -3,6 +3,7 @@ package com.lightning.jpipeworks.resources;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
@@ -44,10 +45,10 @@ public abstract class Resource<T> implements Runnable {
     
     protected synchronized void queueReload() {
     	if(this.loaded.get()) {
-	    this.loaded.set(false);
-	    this.resource = null;
-	    this.loadingThread = new Thread(this);
-	    this.loadingThread.start();
+            this.resource = null;
+            this.loaded.set(false);
+            this.loadingThread = new Thread(this);
+            this.loadingThread.start();
     	}
     }
     
