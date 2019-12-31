@@ -30,7 +30,7 @@ public class Engine {
     private Game realGame;
     
     private GameState loadingState;
-    public List<Thing> things = new ArrayList<>();
+    public ArrayList<Thing> things = new ArrayList<>();
     public volatile boolean isClosing = false;
     public boolean isLoading = false;
     volatile boolean isRunning = false;
@@ -162,7 +162,7 @@ public class Engine {
                 mouseDown = true; // Check which button it is later; probably going to break the API again anyway
             }
             public void mouseReleased(MouseEvent e) {
-                mouseUp = true; // Same as above
+                mouseDown = false; // Same as above
             }
         });
         mainLabel.addMouseMotionListener(new MouseMotionAdapter() {
@@ -175,7 +175,7 @@ public class Engine {
         this.initialized = true;
     }
 
-    public void init(){
+    public void init() {
         try {
             EventQueue.invokeAndWait(()->{
                 JFrame frame = new JFrame("Pipeworks Engine");
