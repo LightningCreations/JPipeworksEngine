@@ -12,7 +12,7 @@ import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.resources.ImageListResource;
 import com.lightning.jpipeworks.resources.ImageResource;
 
-public class Sprite extends PositionedThing {
+public class Sprite extends DrawableThing {
     public static interface SpriteAI {
         public void runAI(Sprite sprite);
     }
@@ -25,7 +25,6 @@ public class Sprite extends PositionedThing {
     public int collisionColor = 0; // Match black
     public boolean collision = false;
     public boolean enable = false;
-    private DrawingSpace space;
     public boolean offscreen = false;
     
     public static class EmptyAI implements SpriteAI {
@@ -57,6 +56,7 @@ public class Sprite extends PositionedThing {
     }
 
     public Sprite(String pathname, SpriteAI ai, int x, int y, int width, int height, Engine engine,DrawingSpace space) {
+        super(space,x,y);
         resources = new ArrayList<>();
         resources.add(new ImageListResource(this, "assets/" + pathname, engine));
         this.ai = ai;
@@ -65,10 +65,10 @@ public class Sprite extends PositionedThing {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.space = space;
     }
 
     public Sprite(ImageListResource res, SpriteAI ai, int x, int y, int width, int height, Engine engine,DrawingSpace space) {
+        super(space,x,y);
         resources = new ArrayList<>();
         resources.add(res);
         this.ai = ai;
@@ -77,7 +77,6 @@ public class Sprite extends PositionedThing {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.space = space;
     }
     
     @Override
@@ -94,6 +93,7 @@ public class Sprite extends PositionedThing {
             if(frame < 0) frame = 0;
             if(frame >= resources.size()-1) frame = resources.size()-1;
             if(resources.size() > frame+1) {
+                DrawingSpace space = getDrawingSpace();
                 BufferedImage thisImage = (BufferedImage) resources.get(frame+1).resource;
                 int trueWidth = thisImage.getWidth();
                 int trueHeight = thisImage.getHeight();
