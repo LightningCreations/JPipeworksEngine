@@ -79,6 +79,6 @@ public abstract class Camera extends PositionedThing implements DrawingSpace {
 
 	@Override
 	public Point getPointIn(Point abs) {
-		return origin.getPointIn(abs.sub(getOffsetPoint()));
+		return origin.getPointIn(abs.add(getOffsetPoint()));
 	}
 }

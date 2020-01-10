@@ -3,6 +3,10 @@ package com.lightning.jpipeworks.things;
 import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 
+/**
+ * A DrawingSpace is is a generalization of the API Provided by Engine,
+ *  to allow transformations of various kinds applied to drawing calls
+ */
 public interface DrawingSpace {
 	public final class Point{
 		private final float x,y;
@@ -42,6 +46,7 @@ public interface DrawingSpace {
 			return new Point(a*x+b*y,c*x+d*y);
 		}
 	}
+
 	public int getWidth();
 	public int getHeight();
 	public void plotPixel(int x,int y,int rgb);
@@ -61,7 +66,9 @@ public interface DrawingSpace {
 	public void fillEllipse(int x,int y,int rx,int ry,int rgb);
 
 	/**
-	 * Defined for Transformative drawing spaces
+	 * Defined for Transformative drawing spaces, returning the point in the drawing space,
+	 *  corresponding to the given point in the global drawing space.
+	 *
 	 * @param abs
 	 */
 	public default Point getPointIn(Point abs){

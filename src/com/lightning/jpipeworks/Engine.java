@@ -67,7 +67,7 @@ public class Engine implements DrawingSpace {
      * If Engine was initialized using {@link #init(Container)}, then returns that container, or some unspecified child of that container.
      * If Engine was initialized using {@link #init()}, the container returned is unspecified, and may be null, unless this engine is Bound to an LCJEI EngineInterface object.
      *
-     * In the second case, the returned container is only guaranteed to be suitable to pass to the initialize method of an EngineInterface.
+     * The returned container is only guaranteed to be suitable to pass to the initialize method of an EngineInterface.
      * In particular, it is not suitable to be directly accessed by the Pipeworks game.
      *
      *
