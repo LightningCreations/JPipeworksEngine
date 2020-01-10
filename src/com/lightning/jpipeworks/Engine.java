@@ -1,28 +1,19 @@
 package com.lightning.jpipeworks;
 
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 import com.lightning.jpipeworks.Game.GameState;
 import com.lightning.jpipeworks.Game.PrimaryGameState;
@@ -40,11 +31,14 @@ public class Engine implements DrawingSpace {
     private Game realGame;
     
     private GameState loadingState;
-    public List<Thing> things = new ArrayList<>();
+    public ArrayList<Thing> things = new ArrayList<>();
     public volatile boolean isClosing = false;
     public boolean isLoading = false;
     volatile boolean isRunning = false;
     public boolean[] keysDown = new boolean[65536];
+    public boolean mouseDown = false;
+    public int mouseX = 0;
+    public int mouseY = 0;
     public static AtomicInteger numLoadThreads = new AtomicInteger(0); // static in case multiple engines are running
     public static final int MAX_LOAD_THREADS = (int)(long)Long.getLong("jpipeworks.loading.maxloadthreads",16);
     public float delta = 0;
@@ -137,7 +131,7 @@ public class Engine implements DrawingSpace {
     }
 
 
-    public synchronized void init(Container target){
+    public synchronized void init(Container target) {
         if(this.initialized)
             throw new IllegalStateException("Already Initialized");
         runningEngines.add(this);
@@ -153,9 +147,9 @@ public class Engine implements DrawingSpace {
                     close();
                 }
             });
-            ((Window)target).pack();
-        }else
-         target.setPreferredSize(mainLabel.getPreferredSize());
+            ((Window) target).pack();
+        } else
+            target.setPreferredSize(mainLabel.getPreferredSize());
         target.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 keysDown[e.getKeyCode()] = true;
@@ -164,11 +158,25 @@ public class Engine implements DrawingSpace {
                 keysDown[e.getKeyCode()] = false;
             }
         });
+        mainLabel.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                mouseDown = true; // Check which button it is later; probably going to break the API again anyway
+            }
+            public void mouseReleased(MouseEvent e) {
+                mouseDown = false; // Same as above
+            }
+        });
+        mainLabel.addMouseMotionListener(new MouseMotionAdapter() {
+            public void mouseMoved(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
+            }
+        });
         window = target;
         this.initialized = true;
     }
 
-    public void init(){
+    public void init() {
         try {
             EventQueue.invokeAndWait(()->{
                 JFrame frame = new JFrame("Pipeworks Engine");
@@ -176,7 +184,7 @@ public class Engine implements DrawingSpace {
                 frame.setLocationRelativeTo(null);
                 frame.pack();
                 frame.setResizable(false);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                //frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
             });
         } catch(InterruptedException ignored){}
         catch (InvocationTargetException e) {
@@ -222,7 +230,7 @@ public class Engine implements DrawingSpace {
             if(isLoading) {
                 boolean allLoaded = true;
                 int i = 0;
-                System.out.println("numLoadThreads: " + numLoadThreads.get());
+                // System.out.println("numLoadThreads: " + numLoadThreads.get());
                 for(Thing thing : things) {
                     if(thing.resources == null) continue;
                     synchronized(thing.resources) { // To allow resources to add other resources
