@@ -21,6 +21,10 @@ public abstract class Camera extends PositionedThing implements DrawingSpace {
     	return -offsetY;
     }
 
+    public DrawingSpace.Point getOffsetPoint(){
+    	return DrawingSpace.Point.getPoint(-offsetX,-offsetY);
+	}
+
 	@Override
 	public int getWidth() {
 		// TODO Auto-generated method stub
@@ -72,5 +76,9 @@ public abstract class Camera extends PositionedThing implements DrawingSpace {
 	public void fillEllipse(int x, int y, int rx, int ry, int rgb) {
 		origin.fillEllipse(x-offsetX, y-offsetY, rx, ry, rgb);
 	}
-	
+
+	@Override
+	public Point getPointIn(Point abs) {
+		return origin.getPointIn(abs.sub(getOffsetPoint()));
+	}
 }

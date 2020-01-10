@@ -97,8 +97,9 @@ public class Sprite extends DrawableThing {
                 BufferedImage thisImage = (BufferedImage) resources.get(frame+1).resource;
                 int trueWidth = thisImage.getWidth();
                 int trueHeight = thisImage.getHeight();
-                int xOff = (int)(x-width/2);
-                int yOff = (int)(y-height/2);
+                DrawingSpace.Point rel = space.getPointIn(this.getPosition());
+                int xOff = (int)(rel.getX()-width/2);
+                int yOff = (int)(rel.getY()-height/2);
                 for(int curX = 0; curX < width; curX+=2) {
                     for(int curY = 0; curY < height; curY+=2) {
                         int x = curX*trueWidth/(int)width;

@@ -26,4 +26,8 @@ public abstract class DrawableThing extends PositionedThing {
 		return y;
 	}
 
+	public DrawingSpace.Point getPosition(){
+		return DrawingSpace.Point.getPoint(x,y);
+	}
+
 }
