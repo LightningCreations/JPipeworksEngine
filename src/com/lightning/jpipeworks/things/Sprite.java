@@ -12,7 +12,7 @@ import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.resources.ImageListResource;
 import com.lightning.jpipeworks.resources.ImageResource;
 
-public class Sprite extends PositionedThing {
+public class Sprite extends DrawableThing {
     public static interface SpriteAI {
         public void runAI(Sprite sprite);
     }
@@ -25,7 +25,6 @@ public class Sprite extends PositionedThing {
     public int collisionColor = 0; // Match black
     public boolean collision = false;
     public boolean enable = false;
-    protected static Camera globalCamera = null;
     public boolean offscreen = false;
     
     public static class EmptyAI implements SpriteAI {
@@ -33,15 +32,31 @@ public class Sprite extends PositionedThing {
     }
     
     public Sprite(String pathname, SpriteAI ai, Engine engine) {
-        this(pathname, ai, 0, 0, 256, 256, engine);
+        this(pathname, ai, 0, 0, 256, 256, engine,engine);
+    }
+    public Sprite(String pathname, SpriteAI ai, Engine engine,DrawingSpace space) {
+        this(pathname, ai, 0, 0, 256, 256, engine,space);
     }
     
     public Sprite(ImageListResource res, SpriteAI ai, Engine engine) {
-        this(res, ai, 0, 0, 256, 256, engine);
+        this(res, ai, 0, 0, 256, 256, engine,engine);
+        res.changeParent(this);
+    }
+    public Sprite(ImageListResource res, SpriteAI ai, Engine engine,DrawingSpace space) {
+        this(res, ai, 0, 0, 256, 256, engine,space);
         res.changeParent(this);
     }
     
     public Sprite(String pathname, SpriteAI ai, int x, int y, int width, int height, Engine engine) {
+        this(pathname,ai,x,y,width,height,engine,engine);
+    }
+    
+    public Sprite(ImageListResource res, SpriteAI ai, int x, int y, int width, int height, Engine engine) {
+        this(res,ai,x,y,width,height,engine,engine);
+    }
+
+    public Sprite(String pathname, SpriteAI ai, int x, int y, int width, int height, Engine engine,DrawingSpace space) {
+        super(space,x,y);
         resources = new ArrayList<>();
         resources.add(new ImageListResource(this, "assets/" + pathname, engine));
         this.ai = ai;
@@ -51,8 +66,9 @@ public class Sprite extends PositionedThing {
         this.width = width;
         this.height = height;
     }
-    
-    public Sprite(ImageListResource res, SpriteAI ai, int x, int y, int width, int height, Engine engine) {
+
+    public Sprite(ImageListResource res, SpriteAI ai, int x, int y, int width, int height, Engine engine,DrawingSpace space) {
+        super(space,x,y);
         resources = new ArrayList<>();
         resources.add(res);
         this.ai = ai;
@@ -72,29 +88,18 @@ public class Sprite extends PositionedThing {
     @Override
     public void render() {
         if(enable) {
-            if(globalCamera == null) {
-                for(Thing t : engine.things) {
-                    if(t instanceof Camera) {
-                        globalCamera = (Camera) t;
-                        break;
-                    }
-                }
-            }
-            int offsetX = 0, offsetY = 0;
-            if(globalCamera != null) {
-                offsetX = globalCamera.offsetX;
-                offsetY = globalCamera.offsetY;
-            }
             collision = false;
             offscreen = true;
             if(frame < 0) frame = 0;
             if(frame >= resources.size()-1) frame = resources.size()-1;
             if(resources.size() > frame+1) {
+                DrawingSpace space = getDrawingSpace();
                 BufferedImage thisImage = (BufferedImage) resources.get(frame+1).resource;
                 int trueWidth = thisImage.getWidth();
                 int trueHeight = thisImage.getHeight();
-                int xOff = (int)(x-width/2)+offsetX;
-                int yOff = (int)(y-height/2)+offsetY;
+                DrawingSpace.Point rel = space.getPointIn(this.getPosition());
+                int xOff = (int)(rel.getX()-width/2);
+                int yOff = (int)(rel.getY()-height/2);
                 for(int curX = 0; curX < width; curX+=2) {
                     for(int curY = 0; curY < height; curY+=2) {
                         int x = curX*trueWidth/(int)width;
@@ -103,11 +108,11 @@ public class Sprite extends PositionedThing {
                         if(collideEnable)
                             if((engine.getPixel(curX+xOff, curY+yOff) & 0x00FFFFFF) == collisionColor)
                                 collision = true;
-                        if(curX+xOff < 0 || curX+xOff >= engine.getWidth() || curY+yOff < 0 || curY+yOff >= engine.getHeight()) continue;
-                        engine.plotPixel(curX+xOff, curY+yOff, thisImage.getRGB(x, y));
-                        engine.plotPixel(curX+xOff+1, curY+yOff, thisImage.getRGB(x, y));
-                        engine.plotPixel(curX+xOff, curY+yOff+1, thisImage.getRGB(x, y));
-                        engine.plotPixel(curX+xOff+1, curY+yOff+1, thisImage.getRGB(x, y));
+                        if(curX+xOff < 0 || curX+xOff >= space.getWidth() || curY+yOff < 0 || curY+yOff >= space.getHeight()) continue;
+                        space.plotPixel(curX+xOff, curY+yOff, thisImage.getRGB(x, y));
+                        space.plotPixel(curX+xOff+1, curY+yOff, thisImage.getRGB(x, y));
+                        space.plotPixel(curX+xOff, curY+yOff+1, thisImage.getRGB(x, y));
+                        space.plotPixel(curX+xOff+1, curY+yOff+1, thisImage.getRGB(x, y));
                         offscreen = false;
                     }
                 }
@@ -140,6 +145,18 @@ public class Sprite extends PositionedThing {
             ImageResource capture = new RecoveredImageResource(frame, engine);
             ImageListResource frames = new ImageListResource(null, new ImageResource[] {capture}, engine);
             return new Sprite(frames, new Sprite.EmptyAI(), engine);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Sprite fromJPEG(byte[] jpeg, Engine engine,DrawingSpace space) {
+        try {
+            BufferedImage frame = ImageIO.read(new ByteArrayInputStream(jpeg));
+            ImageResource capture = new RecoveredImageResource(frame, engine);
+            ImageListResource frames = new ImageListResource(null, new ImageResource[] {capture}, engine);
+            return new Sprite(frames, new Sprite.EmptyAI(), engine,space);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

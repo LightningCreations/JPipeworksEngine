@@ -22,11 +22,12 @@ import com.lightning.jpipeworks.resources.ImageListResource;
 import com.lightning.jpipeworks.resources.ImageResource;
 import com.lightning.jpipeworks.resources.LoadableResource;
 import com.lightning.jpipeworks.resources.Resource;
+import com.lightning.jpipeworks.things.DrawingSpace;
 import com.lightning.jpipeworks.things.Sprite;
 import com.lightning.jpipeworks.things.Thing;
 
-public class Engine {
-    Game game = null; // not private so PipeworksInternalGame can hack // should really be an access-protected mutator method
+public class Engine implements DrawingSpace {
+    Game game = null; // not private so PipeworksInternalGame can hack
     private Game realGame;
     
     private GameState loadingState;
@@ -393,4 +394,14 @@ public class Engine {
             super(null, image, engine);
         }
     }
+
+	@Override
+	public void drawEllipse(int x, int y, int rx, int ry, int rgb) {
+		this.draw(new Ellipse2D.Double(x, y, rx, ry), rgb);
+	}
+
+	@Override
+	public void fillEllipse(int x, int y, int rx, int ry, int rgb) {
+		this.fill(new Ellipse2D.Double(x, y, rx, ry), rgb);
+	}
 }
