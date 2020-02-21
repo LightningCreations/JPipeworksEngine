@@ -25,11 +25,11 @@ public class ImageListResource extends Resource<ArrayList<ImageResource>> {
     public void load(String pathname) {
         ArrayList<ImageResource> resource = new ArrayList<>();
         for(int i = 0;; i++) {
-        	 synchronized(parent.resources) {
-        		 String lpathname = String.format(pathname, i);
+             synchronized(parent.resources) {
+                 String lpathname = String.format(pathname, i);
                  ImageResource cur = new ImageResource(parent, lpathname, engine);
                  if(!cur.canLoad(lpathname))
-                	 break;
+                     break;
                  parent.resources.add(cur);
                  resource.add(cur);
              }

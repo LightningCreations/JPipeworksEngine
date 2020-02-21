@@ -16,14 +16,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Java Engine Interface-1.0.jar</name>
-			<type>2</type>
-			<location>H:/Sentry/JPipeworksEngine/lib/Java Engine Interface-1.0.jar</location>
-		</link>
-		<link>
 			<name>bin</name>
 			<type>2</type>
-			<location>H:/Sentry/JPipeworksEngine/bin</location>
+			<locationURI>PROJECT_LOC/bin</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

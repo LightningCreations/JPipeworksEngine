@@ -25,7 +25,8 @@ public class Sprite extends PositionedThing {
     public int collisionColor = 0; // Match black
     public boolean collision = false;
     public boolean enable = false;
-    protected static Camera globalCamera = null;
+    public static Camera globalCamera = null;
+    public Camera camera;
     public boolean offscreen = false;
     
     public static class EmptyAI implements SpriteAI {
@@ -81,7 +82,10 @@ public class Sprite extends PositionedThing {
                 }
             }
             int offsetX = 0, offsetY = 0;
-            if(globalCamera != null) {
+            if(camera != null) {
+                offsetX = camera.offsetX;
+                offsetY = camera.offsetY;
+            } else if(globalCamera != null) {
                 offsetX = globalCamera.offsetX;
                 offsetY = globalCamera.offsetY;
             }
@@ -95,19 +99,26 @@ public class Sprite extends PositionedThing {
                 int trueHeight = thisImage.getHeight();
                 int xOff = (int)(x-width/2)+offsetX;
                 int yOff = (int)(y-height/2)+offsetY;
-                for(int curX = 0; curX < width; curX+=2) {
+                for(int curX = 0; curX < width; curX+=3) {
                     for(int curY = 0; curY < height; curY+=2) {
                         int x = curX*trueWidth/(int)width;
                         int y = curY*trueHeight/(int)height;
                         if(thisImage.getAlphaRaster() != null && thisImage.getRGB(x, y) >= 0) continue;
                         if(collideEnable)
-                            if((engine.getPixel(curX+xOff, curY+yOff) & 0x00FFFFFF) == collisionColor)
+                            if((engine.getPixel(curX+xOff, curY+yOff) & 0x00FFFFFF) == collisionColor ||
+                            		(engine.getPixel(curX+xOff+1, curY+yOff) & 0x00FFFFFF) == collisionColor ||
+                            		(engine.getPixel(curX+xOff+2, curY+yOff) & 0x00FFFFFF) == collisionColor ||
+                            		(engine.getPixel(curX+xOff, curY+yOff+1) & 0x00FFFFFF) == collisionColor ||
+                            		(engine.getPixel(curX+xOff+1, curY+yOff+1) & 0x00FFFFFF) == collisionColor ||
+                            		(engine.getPixel(curX+xOff+2, curY+yOff+1) & 0x00FFFFFF) == collisionColor)
                                 collision = true;
                         if(curX+xOff < 0 || curX+xOff >= engine.getWidth() || curY+yOff < 0 || curY+yOff >= engine.getHeight()) continue;
                         engine.plotPixel(curX+xOff, curY+yOff, thisImage.getRGB(x, y));
                         engine.plotPixel(curX+xOff+1, curY+yOff, thisImage.getRGB(x, y));
+                        engine.plotPixel(curX+xOff+2, curY+yOff, thisImage.getRGB(x, y));
                         engine.plotPixel(curX+xOff, curY+yOff+1, thisImage.getRGB(x, y));
                         engine.plotPixel(curX+xOff+1, curY+yOff+1, thisImage.getRGB(x, y));
+                        engine.plotPixel(curX+xOff+2, curY+yOff+1, thisImage.getRGB(x, y));
                         offscreen = false;
                     }
                 }
@@ -152,11 +163,11 @@ public class Sprite extends PositionedThing {
         }
     }
 
-	public float getX() {
-		return x;
-	}
+    public float getX() {
+        return x;
+    }
 
-	public float getY() {
-		return y;
-	}
+    public float getY() {
+        return y;
+    }
 }

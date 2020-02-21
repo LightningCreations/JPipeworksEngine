@@ -12,10 +12,10 @@ public abstract class Camera extends PositionedThing {
     }
     
     public float getX() {
-    	return -offsetX;
+        return -offsetX;
     }
     
     public float getY() {
-    	return -offsetY;
+        return -offsetY;
     }
 }

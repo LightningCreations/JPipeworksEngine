@@ -44,19 +44,19 @@ public abstract class Resource<T> implements Runnable {
     }
     
     protected synchronized void queueReload() {
-    	if(this.loaded.get()) {
+        if(this.loaded.get()) {
             this.resource = null;
             this.loaded.set(false);
             this.loadingThread = new Thread(this);
             this.loadingThread.start();
-    	}
+        }
     }
     
     public Optional<T> getResource(){
-    	if(this.loaded.get())
-    		return Optional.ofNullable(resource);
-    	else
-    		return Optional.empty();
+        if(this.loaded.get())
+            return Optional.ofNullable(resource);
+        else
+            return Optional.empty();
     }
     
     public abstract void load(String filename);

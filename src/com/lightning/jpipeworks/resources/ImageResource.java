@@ -11,14 +11,14 @@ import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
 public class ImageResource extends LoadableResource<BufferedImage> {
-	private static Optional<BufferedImage> loadimg(InputStream strm){
-		try {
-			return Optional.of(ImageIO.read(strm));
-		} catch (IOException e) {
-			return Optional.empty();
-		}
-	}
-    	
+    private static Optional<BufferedImage> loadimg(InputStream strm){
+        try {
+            return Optional.of(ImageIO.read(strm));
+        } catch (IOException e) {
+            return Optional.empty();
+        }
+    }
+        
     protected ImageResource(Thing parent, BufferedImage image, Engine engine) {
         super(parent, image, engine);
     }

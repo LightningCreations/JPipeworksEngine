@@ -48,6 +48,7 @@ public class Engine {
     private BufferedImage image;
     private BufferedImage mainImage;
     private Graphics2D imageGraphics;
+    private Cursor blankCursor;
 
     private volatile boolean initialized;
     private volatile boolean running;
@@ -107,20 +108,20 @@ public class Engine {
      * @param lookupFn The new lookup function. Must be Non-null (Throws NullPointerException if null)
      */
     public void setEngineResourceLookupFunction(Function<String,Optional<Supplier<InputStream>>> lookupFn) {
-    	engineResourceLookupFn.set(Optional.of(lookupFn));
+        engineResourceLookupFn.set(Optional.of(lookupFn));
     }
     
     public Optional<Function<String,Optional<Supplier<InputStream>>>> getEngineResourceLookupFunction(){
-    	return engineResourceLookupFn.get();
+        return engineResourceLookupFn.get();
     }
     
     public Game getRunningGame() {
-    	return this.realGame;
-    	//NOTE -> Don't touch, needed so that PipeworksEngineInterface can wrap an existing Engine object.
+        return this.realGame;
+        //NOTE -> Don't touch, needed so that PipeworksEngineInterface can wrap an existing Engine object.
     }
     
     public static Stream<Engine> getRunningPipeworksEngines(){
-    	return runningEngines.stream();
+        return runningEngines.stream();
     }
     
     public void close() {
@@ -134,6 +135,7 @@ public class Engine {
         if(this.initialized)
             throw new IllegalStateException("Already Initialized");
         runningEngines.add(this);
+        blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR), new Point(0,0), "blank");
         mainImage = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
         image = new BufferedImage(1024, 576, BufferedImage.TYPE_3BYTE_BGR);
         imageGraphics = image.createGraphics();
@@ -167,6 +169,11 @@ public class Engine {
         });
         mainLabel.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
+            }
+
+            public void mouseDragged(MouseEvent e) {
                 mouseX = e.getX();
                 mouseY = e.getY();
             }
@@ -218,7 +225,7 @@ public class Engine {
     private void start0() {
         if(window instanceof Window)
             window.setVisible(true);
-	isLoading = true;
+        isLoading = true;
         game = new PipeworksInternalGame(game);
         loadState(game, PrimaryGameState.PIPEWORKS_INTRO);
         long prevTime = System.nanoTime();
@@ -312,44 +319,44 @@ public class Engine {
     }
     
     public void drawLine(int x1,int y1,int x2,int y2,int rgb) {
-    	imageGraphics.setColor(new Color(rgb&0xFFFFFF));
-    	imageGraphics.drawLine(x1, y1, x2, y2);
+        imageGraphics.setColor(new Color(rgb&0xFFFFFF));
+        imageGraphics.drawLine(x1, y1, x2, y2);
     }
     
     public void drawRect(int x1,int y1,int x2,int y2,int rgb) {
-    	int len = x2<x1?x1-x2:x2-x1;
-    	int height = y2<y1?y1-y2:y2-y1;
-    	imageGraphics.setColor(new Color(rgb&0xFFFFFF));
-    	imageGraphics.drawRect(x1, y1, len, height);
+        int len = x2<x1?x1-x2:x2-x1;
+        int height = y2<y1?y1-y2:y2-y1;
+        imageGraphics.setColor(new Color(rgb&0xFFFFFF));
+        imageGraphics.drawRect(x1, y1, len, height);
     }
     
     public void fillRect(int x1,int y1,int x2,int y2,int rgb) {
-    	int len = x2<x1?x1-x2:x2-x1;
-    	int height = y2<y1?y1-y2:y2-y1;
-    	imageGraphics.setColor(new Color(rgb&0xFFFFFF));
-    	imageGraphics.fillRect(x1, y1, len, height);
+        int len = x2<x1?x1-x2:x2-x1;
+        int height = y2<y1?y1-y2:y2-y1;
+        imageGraphics.setColor(new Color(rgb&0xFFFFFF));
+        imageGraphics.fillRect(x1, y1, len, height);
     }
     
     //Internal Helper Method in case we want more interesting shapes
     //Currently just used by drawCircle
     private void draw(Shape s,int rgb) {
-    	imageGraphics.setColor(new Color(rgb&0xFFFFFF));
-    	imageGraphics.draw(s);
+        imageGraphics.setColor(new Color(rgb&0xFFFFFF));
+        imageGraphics.draw(s);
     }
     
     //Internal Helper Method in case we want more interesting shapes
     //Currently just used by fillCircle
     private void fill(Shape s,int rgb) {
-    	imageGraphics.setColor(new Color(rgb&0xFFFFFF));
-    	imageGraphics.fill(s);
+        imageGraphics.setColor(new Color(rgb&0xFFFFFF));
+        imageGraphics.fill(s);
     }
     
     public void drawCircle(int x,int y,int r,int rgb){
-    	draw(new Ellipse2D.Double(x, y, r, r),rgb);
+        draw(new Ellipse2D.Double(x, y, r, r),rgb);
     }
     
     public void fillCircle(int x,int y,int r,int rgb) {
-    	fill(new Ellipse2D.Double(x, y, r, r),rgb);
+        fill(new Ellipse2D.Double(x, y, r, r),rgb);
     }
     
     public int getPixel(int x, int y) {
@@ -369,23 +376,31 @@ public class Engine {
      */
     @Deprecated
     public Graphics getAWTGraphicsObject() {
-    	if(this.imageGraphics==null)
-    		return this.imageGraphics = image.createGraphics();
-    	return imageGraphics;
+        if(this.imageGraphics==null)
+            return this.imageGraphics = image.createGraphics();
+        return imageGraphics;
     }
     
     public int getWidth() {
-    	return image.getWidth();
+        return image.getWidth();
     }
     
     public int getHeight() {
-    	return image.getHeight();
+        return image.getHeight();
     }
     
     public Sprite captureFrame() {
         ImageResource capture = new CapturedImageResource(mainImage, this);
         ImageListResource frames = new ImageListResource(null, new ImageResource[] {capture}, this);
         return new Sprite(frames, new Sprite.EmptyAI(), this);
+    }
+    
+    public void hideCursor() {
+        window.setCursor(blankCursor);
+    }
+    
+    public void showCursor() {
+        window.setCursor(Cursor.getDefaultCursor());
     }
     
     private static class CapturedImageResource extends ImageResource {

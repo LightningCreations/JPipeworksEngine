@@ -12,14 +12,14 @@ import com.lightning.jpipeworks.Engine;
 import com.lightning.jpipeworks.things.Thing;
 
 public class AudioInputStreamResource extends BufferedStreamResource<AudioInputStream> {
-	private static Optional<AudioInputStream> loadStream(InputStream in){
-		try {
-			return Optional.of(AudioSystem.getAudioInputStream(in));
-		} catch (UnsupportedAudioFileException | IOException e) {
-			e.printStackTrace();
-			return Optional.empty();
-		}
-	}
+    private static Optional<AudioInputStream> loadStream(InputStream in){
+        try {
+            return Optional.of(AudioSystem.getAudioInputStream(in));
+        } catch (UnsupportedAudioFileException | IOException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
     
     public AudioInputStreamResource(Thing parent, String filename, Engine engine) {
         super(parent, filename, engine,AudioInputStreamResource::loadStream);

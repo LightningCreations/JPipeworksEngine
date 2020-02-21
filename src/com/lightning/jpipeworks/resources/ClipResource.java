@@ -16,17 +16,17 @@ import com.lightning.jpipeworks.things.Thing;
 
 public class ClipResource extends LoadableResource<Clip> {
     
-	private static final Optional<Clip> loadClip(InputStream in){
-		try {
-			AudioInputStream inputStream = AudioSystem.getAudioInputStream(in);
-		    DataLine.Info info = new DataLine.Info(Clip.class, inputStream.getFormat());
-		    Clip clip = (Clip) AudioSystem.getLine(info);
-		    clip.open(inputStream);
-		    return Optional.of(clip);
-		}catch(IOException | UnsupportedAudioFileException | LineUnavailableException e) {
-			return Optional.empty();
-		}
-	}
+    private static final Optional<Clip> loadClip(InputStream in){
+        try {
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(in);
+            DataLine.Info info = new DataLine.Info(Clip.class, inputStream.getFormat());
+            Clip clip = (Clip) AudioSystem.getLine(info);
+            clip.open(inputStream);
+            return Optional.of(clip);
+        }catch(IOException | UnsupportedAudioFileException | LineUnavailableException e) {
+            return Optional.empty();
+        }
+    }
     
     public ClipResource(Thing parent, String filename, Engine engine) {
         super(parent, filename, engine,ClipResource::loadClip,Clip.class);

@@ -20,20 +20,20 @@ public class BGMPlayer extends Thing {
     }
     
     private void startMusic(AudioInputStream in) {
-    	try {
-			AudioEngine.setBGM(in);
-	    	AudioEngine.setBGMLoop(loop);
-	    	startMusic = false;
-    	} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        try {
+            AudioEngine.setBGM(in);
+            AudioEngine.setBGMLoop(loop);
+            startMusic = false;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
     @Override
     public void update() {
         if(startMusic)
-        	resources.get(0).getResource().map(o->(AudioInputStream)o).ifPresent(this::startMusic);
+            resources.get(0).getResource().map(o->(AudioInputStream)o).ifPresent(this::startMusic);
     }
 
     @Override
